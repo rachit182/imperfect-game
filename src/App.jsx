@@ -1,26 +1,29 @@
-import { useState } from "react";
-import GameIntro from "./pages/GameIntro";
+import { GameProvider, useGame } from "./GameContext";
+import Dashboard from "./components/Dashboard";
+import IslandView from "./components/IslandView";
+import DecisionPanel from "./components/DecisionPanel";
+import EndScreen from "./components/EndScreen";
 
-export default function App() {
-  const [screen, setScreen] = useState("intro");
+function Game() {
+  const { state } = useGame();
+
+  if (state.phase === "END") {
+    return <EndScreen />;
+  }
 
   return (
     <div className="app">
-      {screen === "intro" && (
-        <GameIntro onStart={() => setScreen("game")} />
-      )}
-
-      {screen === "game" && (
-        <div className="game">
-          <h1>Imperfect</h1>
-          <p>Game starts here.</p>
-
-          {/* Later replace this block with <Game /> */}
-          <button onClick={() => setScreen("intro")}>
-            Restart
-          </button>
-        </div>
-      )}
+      <Dashboard />
+      <IslandView />
+      <DecisionPanel />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <GameProvider>
+      <Game />
+    </GameProvider>
   );
 }

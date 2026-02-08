@@ -1,0 +1,68 @@
+body {
+  font-family: sans-serif;
+  background: #111;
+  color: #eee;
+}
+
+.app {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+
+.dashboard, .decisions {
+  display: flex;
+  gap: 10px;
+}
+
+.meter {
+  width: 120px;
+}
+
+.bar {
+  background: #333;
+  height: 8px;
+}
+
+.fill {
+  background: #6cf;
+  height: 100%;
+}
+
+.island {
+  position: relative;
+  height: 200px;
+  background: #3a3a3a;
+  overflow: hidden;
+}
+
+.water {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: #2244ff88;
+}
+
+.house {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+button {
+  background: #222;
+  color: #fff;
+  border: 1px solid #555;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.end {
+  text-align: center;
+}
+
+.message {
+  margin-top: 20px;
+  font-style: italic;
+}
