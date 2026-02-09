@@ -1,29 +1,41 @@
 export const decisions = [
   {
-    label: "Work overtime at the factory",
-    effects: {
-      environment: -10,
-      economy: +15,
-      equity: -5,
-      satisfaction: +5
+    label: "Take extra shifts at the factory",
+    playerEffects: {
+      money: +15,
+      wellbeing: -10,
+      localEnvironment: -5,
+      jobSecurity: +5
+    },
+    systemEffects: {
+      environment: -8,
+      economy: +6,
+      equity: -4
     }
   },
+
   {
-    label: "Push for environmental regulations",
-    effects: {
-      environment: +10,
-      economy: -10,
-      equity: +5,
-      satisfaction: -5
+    label: "Skip work to care for family",
+    playerEffects: {
+      money: -10,
+      wellbeing: +10,
+      jobSecurity: -8
+    },
+    systemEffects: {
+      economy: -6,
+      equity: +3
     }
   },
+
   {
-    label: "Subsidize the factory",
-    effects: {
-      environment: -15,
-      economy: +20,
-      equity: -10,
-      satisfaction: +10
+    label: "Attend a community protest",
+    playerEffects: {
+      wellbeing: +5,
+      jobSecurity: -5
+    },
+    systemEffects: {
+      environment: +6,
+      publicSatisfaction: -4
     }
   }
 ];

@@ -2,21 +2,20 @@ import { useGame } from "../GameContext";
 
 export default function EndScreen() {
   const { state } = useGame();
-  const { metrics, seaLevel } = state;
 
   return (
     <div className="end">
-      <h2>Final Metrics</h2>
-      <pre>{JSON.stringify(metrics, null, 2)}</pre>
+      <h2>You did what you could.</h2>
 
-      <div className="island end-island">
-        <div
-          className="water"
-          style={{ height: `${seaLevel * 100}%` }}
-        />
-      </div>
+      <h3>Your Life</h3>
+      <pre>{JSON.stringify(state.player, null, 2)}</pre>
 
-      <p className="message">Every solution breaks something.</p>
+      <h3>The System</h3>
+      <pre>{JSON.stringify(state.system, null, 2)}</pre>
+
+      <p className="message">
+        The system kept changing, even when you had no control.
+      </p>
     </div>
   );
 }
