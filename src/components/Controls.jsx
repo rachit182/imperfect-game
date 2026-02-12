@@ -7,6 +7,7 @@ export default function Controls() {
   const WORK_HOURS = 8;
   const EXTRA_SHIFT_HOURS = 8;
   const SLEEP_HOURS = 8;
+  const hasActiveEvent = Boolean(state.activeEvent);
   const canDecideWork = !state.meta.workDecisionMade;
   const canTakeExtraShift =
     state.meta.workDecisionMade &&
@@ -20,7 +21,9 @@ export default function Controls() {
       <button
         onClick={() => dispatch({ type: "GO_TO_WORK" })}
         disabled={
-          !canDecideWork || state.meta.hoursUsed + WORK_HOURS > HOURS_PER_DAY
+          hasActiveEvent ||
+          !canDecideWork ||
+          state.meta.hoursUsed + WORK_HOURS > HOURS_PER_DAY
         }
       >
         Go To Work
@@ -28,19 +31,22 @@ export default function Controls() {
 
       <button
         onClick={() => dispatch({ type: "SKIP_WORK" })}
-        disabled={!canDecideWork}
+        disabled={hasActiveEvent || !canDecideWork}
       >
         Skip Work
       </button>
 
       <button
         onClick={() => dispatch({ type: "EXTRA_SHIFT" })}
-        disabled={!canTakeExtraShift}
+        disabled={hasActiveEvent || !canTakeExtraShift}
       >
-        Take Extra Shift
+        Take Extra Shift (0.75x/8hr)
       </button>
 
-      <button onClick={() => dispatch({ type: "SLEEP" })} disabled={!canSleep}>
+      <button
+        onClick={() => dispatch({ type: "SLEEP" })}
+        disabled={hasActiveEvent || !canSleep}
+      >
         Sleep
       </button>
     </div>

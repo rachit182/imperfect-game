@@ -10,8 +10,8 @@ body {
 }
 
 .dashboard {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 
@@ -36,4 +36,11 @@ body {
   border: 2px solid black;
   padding: 15px;
   margin-top: 20px;
+}
+
+.popup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
 }
