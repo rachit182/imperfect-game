@@ -142,8 +142,6 @@ function applyEventChoice(state, eventId, choiceId) {
       if (choiceId === "PRIVATE_TREATMENT") {
         newState.player.money -= 500;
         newState.player.health += 20;
-      } else if (choiceId === "PUBLIC_HOSPITAL") {
-        newState.player.health -= 15;
       }
       break;
 
@@ -281,7 +279,7 @@ export function gameReducer(state, action) {
       const nextHoursUsed = state.meta.hoursUsed + SLEEP_HOURS;
       if (nextHoursUsed > HOURS_PER_DAY) return state;
 
-      return advanceDayIfNeeded({
+      const nextState = advanceDayIfNeeded({
         ...state,
         meta: { ...state.meta, hoursUsed: nextHoursUsed },
         player: {
@@ -289,6 +287,19 @@ export function gameReducer(state, action) {
           health: state.player.health + 10
         }
       });
+
+      // Sleep should not directly alter money, but day rollover costs/income still apply.
+      if (nextState.meta.day === state.meta.day) {
+        return {
+          ...nextState,
+          player: {
+            ...nextState.player,
+            money: state.player.money
+          }
+        };
+      }
+
+      return nextState;
     }
 
     case "UPDATE_WAGE": {

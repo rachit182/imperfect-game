@@ -32,8 +32,7 @@ const EVENT_CONTENT = {
       "The hospital is overwhelmed."
     ],
     choices: [
-      { id: "PRIVATE_TREATMENT", label: "Pay for private treatment ($500)" },
-      { id: "PUBLIC_HOSPITAL", label: "Wait for public hospital" }
+      { id: "PRIVATE_TREATMENT", label: "Pay for private treatment ($500)" }
     ]
   },
   SEVERE_STORM: {
@@ -43,8 +42,11 @@ const EVENT_CONTENT = {
       "Flooding threatens the factory and your home."
     ],
     choices: [
-      { id: "REBUILD_HIGHER", label: "Rebuild home higher ($800)" },
-      { id: "MINIMAL_REPAIR", label: "Repair minimally ($200)" }
+      { id: "REBUILD_HIGHER", label: "Build a concrete risen home ($800)" },
+      {
+        id: "MINIMAL_REPAIR",
+        label: "Do a temporary natural material fix ($200)"
+      }
     ]
   },
   EQUIPMENT_FAILURE: {

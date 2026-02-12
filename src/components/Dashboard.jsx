@@ -37,6 +37,26 @@ export default function Dashboard() {
         <p>AQI: {state.environment.aqi}</p>
         <p>Water Level: {state.environment.waterLevel}</p>
       </div>
+
+      <div className="dashboard-group hidden-group">
+        <p>Hidden Variables</p>
+        <p>Climate Stress: {state.environment.climateStress.toFixed(2)}</p>
+        <p>Toxic Waste: {state.factory.toxicWaste}</p>
+        <p>Equipment Wear: {state.factory.equipmentWear}</p>
+        <p>Factory Stability: {state.factory.stability}</p>
+        <p>Factory Profitability: {state.factory.profitability}</p>
+        <p>Base Wage: ${state.economy.baseWage}</p>
+        <p>Work Decision Made: {state.meta.workDecisionMade ? "Yes" : "No"}</p>
+        <p>Storm Vulnerability: {state.meta.stormVulnerability ? "Yes" : "No"}</p>
+        <p>
+          Home Protection Multiplier: {state.player.home.stormProtectionMultiplier}
+        </p>
+        <p>
+          Has Concrete Barrier: {state.player.home.hasConcreteBarrier ? "Yes" : "No"}
+        </p>
+        <p>Active Event: {state.activeEvent ? state.activeEvent.id : "None"}</p>
+        <p>Game Over: {state.meta.gameOver ? "Yes" : "No"}</p>
+      </div>
     </div>
   );
 }

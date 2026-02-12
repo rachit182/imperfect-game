@@ -16,10 +16,15 @@ body {
 }
 
 .dashboard-group {
-  background: #fff;
-  border: 1px solid #d7d7d7;
+  background: #e9f7ec;
+  border: 1px solid #6fb785;
   border-radius: 6px;
   padding: 10px;
+}
+
+.hidden-group {
+  background: #fbe4e4;
+  border-color: #d96b6b;
 }
 
 .dashboard-group p {
