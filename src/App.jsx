@@ -1,29 +1,17 @@
-import { GameProvider, useGame } from "./GameContext";
+import { GameProvider } from "./state/GameContext";
 import Dashboard from "./components/Dashboard";
-import IslandView from "./components/IslandView";
-import DecisionPanel from "./components/DecisionPanel";
-import EndScreen from "./components/EndScreen";
-
-function Game() {
-  const { state } = useGame();
-
-  if (state.phase === "END") {
-    return <EndScreen />;
-  }
-
-  return (
-    <div className="app">
-      <Dashboard />
-      <IslandView />
-      <DecisionPanel />
-    </div>
-  );
-}
+import Controls from "./components/Controls";
+import EventPopup from "./components/EventPopup";
 
 export default function App() {
   return (
     <GameProvider>
-      <Game />
+      <div className="container">
+        <h1>Imperfect the game</h1>
+        <Dashboard />
+        <Controls />
+        <EventPopup />
+      </div>
     </GameProvider>
   );
 }

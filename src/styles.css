@@ -1,68 +1,39 @@
 body {
-  font-family: sans-serif;
-  background: #111;
-  color: #eee;
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
 }
 
-.app {
-  display: grid;
-  gap: 16px;
+.container {
+  max-width: 700px;
+  margin: auto;
   padding: 20px;
 }
 
-.dashboard, .decisions {
-  display: flex;
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 10px;
 }
 
-.meter {
-  width: 120px;
+.dashboard-group {
+  background: #fff;
+  border: 1px solid #d7d7d7;
+  border-radius: 6px;
+  padding: 10px;
 }
 
-.bar {
-  background: #333;
-  height: 8px;
+.dashboard-group p {
+  margin: 4px 0;
 }
 
-.fill {
-  background: #6cf;
-  height: 100%;
+.controls button {
+  margin: 5px;
+  padding: 8px 12px;
 }
 
-.island {
-  position: relative;
-  height: 200px;
-  background: #3a3a3a;
-  overflow: hidden;
-}
-
-.water {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  background: #2244ff88;
-}
-
-.house {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-button {
-  background: #222;
-  color: #fff;
-  border: 1px solid #555;
-  padding: 8px;
-  cursor: pointer;
-}
-
-.end {
-  text-align: center;
-}
-
-.message {
+.popup {
+  background: white;
+  border: 2px solid black;
+  padding: 15px;
   margin-top: 20px;
-  font-style: italic;
 }
