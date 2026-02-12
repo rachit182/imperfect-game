@@ -8,6 +8,7 @@ export default function Controls() {
   const EXTRA_SHIFT_HOURS = 8;
   const SLEEP_HOURS = 8;
   const hasActiveEvent = Boolean(state.activeEvent);
+  const canBuildHome = !state.player.home.hasConcreteBarrier && !hasActiveEvent;
   const canDecideWork = !state.meta.workDecisionMade;
   const canTakeExtraShift =
     state.meta.workDecisionMade &&
@@ -18,6 +19,13 @@ export default function Controls() {
 
   return (
     <div className="controls">
+      <button
+        onClick={() => dispatch({ type: "REQUEST_BUILD_HOME" })}
+        disabled={!canBuildHome}
+      >
+        Build Home
+      </button>
+
       <button
         onClick={() => dispatch({ type: "GO_TO_WORK" })}
         disabled={

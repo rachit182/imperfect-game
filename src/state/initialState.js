@@ -2,6 +2,7 @@ export const initialState = {
   meta: {
     day: 1,
     gameOver: false,
+    deathCause: null,
     hoursUsed: 0,
     workDecisionMade: false,
     stormVulnerability: false
@@ -17,7 +18,8 @@ export const initialState = {
   },
   environment: {
     aqi: 100,
-    waterLevel: 100,
+    seaWaterLevel: 100,
+    freshGroundWaterLevel: 100,
     climateStress: 0
   },
   factory: {
@@ -31,6 +33,10 @@ export const initialState = {
     baseWage: 100,
     dailyWage: 100,
     householdExpense: 50
+  },
+  events: {
+    familyIllnessCooldownUntilDay: 0,
+    healthWarningCooldownUntilDay: 0
   },
   activeEvent: null
 };

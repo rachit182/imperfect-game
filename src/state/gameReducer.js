@@ -11,7 +11,8 @@ function cloneState(state) {
     environment: { ...state.environment },
     factory: { ...state.factory },
     society: { ...state.society },
-    economy: { ...state.economy }
+    economy: { ...state.economy },
+    events: { ...state.events }
   };
 }
 
@@ -26,12 +27,26 @@ function checkEventTriggers(state) {
     return { ...state, activeEvent: { id: "ILLEGAL_WASTE_DUMPING" } };
   }
 
-  if (state.environment.waterLevel <= 40 && state.factory.toxicWaste >= 400) {
+  if (
+    state.environment.freshGroundWaterLevel <= 40 &&
+    state.factory.toxicWaste >= 400
+  ) {
     return { ...state, activeEvent: { id: "WATER_TABLE_COLLAPSE_WARNING" } };
   }
 
-  if (state.environment.aqi >= 180 && state.player.health <= 70) {
+  if (
+    state.environment.aqi > 280 &&
+    state.player.health < 20 &&
+    state.meta.day >= state.events.familyIllnessCooldownUntilDay
+  ) {
     return { ...state, activeEvent: { id: "FAMILY_ILLNESS" } };
+  }
+
+  if (
+    state.player.health < 40 &&
+    state.meta.day >= state.events.healthWarningCooldownUntilDay
+  ) {
+    return { ...state, activeEvent: { id: "HEALTH_DEGRADATION_WARNING" } };
   }
 
   if (state.environment.climateStress >= 60 && Math.random() < 0.4) {
@@ -45,6 +60,30 @@ function checkEventTriggers(state) {
   return state;
 }
 
+function applyLossConditions(state) {
+  if (state.player.health <= 0) {
+    state.meta.gameOver = true;
+    if (state.environment.aqi >= 300) {
+      state.meta.deathCause = "severe respiratory disease";
+    } else if (state.environment.freshGroundWaterLevel <= 20) {
+      state.meta.deathCause = "water-borne disease";
+    } else {
+      state.meta.deathCause = "chronic disease";
+    }
+    return state;
+  }
+
+  if (state.environment.freshGroundWaterLevel <= 0) {
+    state.meta.gameOver = true;
+  }
+
+  if (state.factory.stability <= 0) {
+    state.meta.gameOver = true;
+  }
+
+  return state;
+}
+
 function applyDayEndEffects(state) {
   let newState = cloneState(state);
 
@@ -53,14 +92,18 @@ function applyDayEndEffects(state) {
     newState.player.money += 300;
     newState.environment.aqi += 20;
     newState.factory.toxicWaste += 50;
-    newState.environment.waterLevel -= 5;
+    newState.environment.freshGroundWaterLevel -= 5;
+    newState.environment.seaWaterLevel += 1;
     newState.factory.equipmentWear += 5;
   }
 
   // 2) Update AQI & toxic waste (already represented by direct action + production)
+  // Passive penalty: worn equipment continuously worsens AQI.
+  newState.environment.aqi += newState.factory.equipmentWear / 10;
 
   // 3) Update water level
-  newState.environment.waterLevel -= 2;
+  newState.environment.freshGroundWaterLevel -= 2;
+  newState.environment.seaWaterLevel += newState.environment.climateStress / 200;
 
   // 4) Update climate stress
   newState.environment.climateStress +=
@@ -72,7 +115,9 @@ function applyDayEndEffects(state) {
   else if (newState.environment.aqi >= 200) newState.player.health -= 10;
 
   // Additional systemic penalties
-  if (newState.environment.waterLevel <= 20) newState.player.money -= 200;
+  if (newState.environment.freshGroundWaterLevel <= 20) {
+    newState.player.money -= 200;
+  }
   if (newState.factory.profitability <= 10) {
     newState.factory.stability -= 30;
     newState.player.jobSecurity -= 40;
@@ -82,15 +127,7 @@ function applyDayEndEffects(state) {
   newState = checkEventTriggers(newState);
 
   // 7) Check loss conditions
-  if (
-    newState.environment.waterLevel <= 0 ||
-    newState.player.health <= 0 ||
-    newState.factory.stability <= 0
-  ) {
-    newState.meta.gameOver = true;
-  }
-
-  return newState;
+  return applyLossConditions(newState);
 }
 
 function advanceDayIfNeeded(state) {
@@ -108,6 +145,22 @@ function applyEventChoice(state, eventId, choiceId) {
   const newState = cloneState(state);
 
   switch (eventId) {
+    case "HOME_BUILD_CONFIRM":
+      if (choiceId === "CONTINUE") {
+        if (newState.player.home.hasConcreteBarrier) break;
+        if (newState.player.money < 1600) break;
+
+        newState.player.money -= 1600;
+        newState.player.home.hasConcreteBarrier = true;
+        newState.player.home.stormProtectionMultiplier = 0.3;
+        newState.meta.stormVulnerability = false;
+        newState.economy.householdExpense = Math.max(
+          newState.economy.householdExpense,
+          130
+        );
+      }
+      break;
+
     case "ILLEGAL_WASTE_DUMPING":
       if (choiceId === "REPORT") {
         newState.player.jobSecurity -= 30;
@@ -119,7 +172,7 @@ function applyEventChoice(state, eventId, choiceId) {
         newState.player.jobSecurity += 5;
         newState.player.money += 100;
         newState.factory.toxicWaste += 100;
-        newState.environment.waterLevel -= 5;
+        newState.environment.freshGroundWaterLevel -= 5;
         newState.environment.climateStress += 5;
       }
       break;
@@ -128,11 +181,11 @@ function applyEventChoice(state, eventId, choiceId) {
       if (choiceId === "RESTRICT") {
         newState.factory.stability -= 15;
         newState.player.money -= 100;
-        newState.environment.waterLevel += 10;
+        newState.environment.freshGroundWaterLevel += 10;
         newState.factory.profitability -= 10;
       } else if (choiceId === "IGNORE") {
         newState.factory.stability += 5;
-        newState.environment.waterLevel -= 15;
+        newState.environment.freshGroundWaterLevel -= 15;
         newState.factory.toxicWaste += 50;
         newState.environment.climateStress += 10;
       }
@@ -142,7 +195,17 @@ function applyEventChoice(state, eventId, choiceId) {
       if (choiceId === "PRIVATE_TREATMENT") {
         newState.player.money -= 500;
         newState.player.health += 20;
+        newState.events.familyIllnessCooldownUntilDay = newState.meta.day + 3;
       }
+      break;
+
+    case "HEALTH_DEGRADATION_WARNING":
+      if (choiceId === "VISIT_DOCTOR") {
+        if (newState.player.money < 200) break;
+        newState.player.money -= 200;
+        newState.player.health += 15;
+      }
+      newState.events.healthWarningCooldownUntilDay = newState.meta.day + 2;
       break;
 
     case "SEVERE_STORM":
@@ -151,6 +214,10 @@ function applyEventChoice(state, eventId, choiceId) {
         newState.player.home.hasConcreteBarrier = true;
         newState.player.home.stormProtectionMultiplier = 0.3;
         newState.meta.stormVulnerability = false;
+        newState.economy.householdExpense = Math.max(
+          newState.economy.householdExpense,
+          130
+        );
       } else if (choiceId === "MINIMAL_REPAIR") {
         newState.player.money -= 200;
         newState.meta.stormVulnerability = true;
@@ -175,21 +242,14 @@ function applyEventChoice(state, eventId, choiceId) {
       break;
   }
 
-  if (
-    newState.environment.waterLevel <= 0 ||
-    newState.player.health <= 0 ||
-    newState.factory.stability <= 0
-  ) {
-    newState.meta.gameOver = true;
-  }
-
-  return newState;
+  return applyLossConditions(newState);
 }
 
 function isBlockedByEvent(state, actionType) {
   if (!state.activeEvent) return false;
 
   return [
+    "REQUEST_BUILD_HOME",
     "GO_TO_WORK",
     "SKIP_WORK",
     "EXTRA_SHIFT",
@@ -198,9 +258,15 @@ function isBlockedByEvent(state, actionType) {
 }
 
 export function gameReducer(state, action) {
+  if (state.meta.gameOver) return state;
   if (isBlockedByEvent(state, action.type)) return state;
 
   switch (action.type) {
+    case "REQUEST_BUILD_HOME": {
+      if (state.player.home.hasConcreteBarrier) return state;
+      return { ...state, activeEvent: { id: "HOME_BUILD_CONFIRM" } };
+    }
+
     case "GO_TO_WORK": {
       const WORK_HOURS = 8;
       const nextHoursUsed = state.meta.hoursUsed + WORK_HOURS;
@@ -289,17 +355,19 @@ export function gameReducer(state, action) {
       });
 
       // Sleep should not directly alter money, but day rollover costs/income still apply.
-      if (nextState.meta.day === state.meta.day) {
-        return {
-          ...nextState,
-          player: {
-            ...nextState.player,
-            money: state.player.money
-          }
-        };
-      }
+      const dayAdvanced = nextState.meta.day > state.meta.day;
+      const baselineMoneyAfterSleep =
+        state.player.money -
+        (dayAdvanced ? nextState.economy.householdExpense : 0);
 
-      return nextState;
+      return {
+        ...nextState,
+        player: {
+          ...nextState.player,
+          // Sleeping can keep or reduce money, but never increase it.
+          money: Math.min(nextState.player.money, baselineMoneyAfterSleep)
+        }
+      };
     }
 
     case "UPDATE_WAGE": {
