@@ -1,62 +1,127 @@
+/* ========== GLOBAL ========== */
+
 body {
-  font-family: sans-serif;
-  background: #111;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0f1115;
   color: #eee;
+  margin: 0;
 }
 
 .app {
   display: grid;
-  gap: 16px;
-  padding: 20px;
+  gap: 24px;
+  padding: 24px;
 }
 
-.dashboard, .decisions {
+/* ========== DASHBOARD / HUD ========== */
+
+.dashboard {
   display: flex;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 32px;
 }
 
 .meter {
-  width: 120px;
+  background: #1b1e24;
+  padding: 12px 16px;
+  border-radius: 14px;
+  width: 180px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.meter-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .bar {
-  background: #333;
-  height: 8px;
+  background: #2c313a;
+  height: 10px;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .fill {
-  background: #6cf;
   height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s ease;
 }
+
+/* Gradient fill based on value */
+.fill.green {
+  background: #3ddc84;
+}
+
+.fill.yellow {
+  background: #f5c542;
+}
+
+.fill.red {
+  background: #e55353;
+}
+
+/* ========== ISLAND AREA ========== */
 
 .island {
   position: relative;
-  height: 200px;
-  background: #3a3a3a;
+  height: 240px;
+  background: #101820;
+  border-radius: 16px;
   overflow: hidden;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
 }
 
 .water {
   position: absolute;
   bottom: 0;
   width: 100%;
-  background: #2244ff88;
+  background: linear-gradient(to top,
+      #1e4e8c,
+      #2d6fb4,
+      #4f95d8);
+  transition: height 0.4s ease;
 }
 
 .house {
   position: absolute;
-  bottom: 10px;
-  left: 50%;
+  bottom: 20px;
+  left: 40%;
   transform: translateX(-50%);
 }
 
-button {
-  background: #222;
-  color: #fff;
-  border: 1px solid #555;
-  padding: 8px;
-  cursor: pointer;
+/* ========== DECISION BUTTONS ========== */
+
+.decisions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
 }
+
+button {
+  background: linear-gradient(145deg, #22252c, #1a1d23);
+  color: #fff;
+  border: 1px solid #333;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  background: #2a2f39;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* ========== END SCREEN ========== */
 
 .end {
   text-align: center;
@@ -65,4 +130,5 @@ button {
 .message {
   margin-top: 20px;
   font-style: italic;
+  opacity: 0.8;
 }
