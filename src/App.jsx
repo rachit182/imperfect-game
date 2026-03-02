@@ -1,6 +1,6 @@
 import { GameProvider, useGame } from "./GameContext";
 import Dashboard from "./components/Dashboard";
-import IslandView from "./components/IslandView";
+import IslandView from "./components/IslandScene";
 import DecisionPanel from "./components/DecisionPanel";
 import EndScreen from "./components/EndScreen";
 
