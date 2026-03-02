@@ -5,7 +5,8 @@ export const initialState = {
     deathCause: null,
     hoursUsed: 0,
     workDecisionMade: false,
-    stormVulnerability: false
+    stormVulnerability: false,
+    lastActionType: null
   },
   player: {
     money: 1000,
@@ -19,7 +20,6 @@ export const initialState = {
   environment: {
     aqi: 100,
     seaWaterLevel: 100,
-    freshGroundWaterLevel: 100,
     climateStress: 0
   },
   factory: {
@@ -28,7 +28,9 @@ export const initialState = {
     equipmentWear: 0,
     toxicWaste: 0
   },
-  society: {},
+  society: {
+    treadmillOfProduction: 30
+  },
   economy: {
     baseWage: 100,
     dailyWage: 100,

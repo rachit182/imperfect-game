@@ -1,4 +1,6 @@
 const HOURS_PER_DAY = 24;
+const TREADMILL_MIN = 0;
+const TREADMILL_MAX = 100;
 
 function cloneState(state) {
   return {
@@ -16,6 +18,54 @@ function cloneState(state) {
   };
 }
 
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(value, max));
+}
+
+function applyTreadmillShift(state, shift) {
+  return {
+    ...state,
+    society: {
+      ...state.society,
+      treadmillOfProduction: clamp(
+        (state.society.treadmillOfProduction ?? 0) + shift,
+        TREADMILL_MIN,
+        TREADMILL_MAX
+      )
+    }
+  };
+}
+
+function getEventTreadmillShift(eventId, choiceId) {
+  switch (eventId) {
+    case "HOME_BUILD_CONFIRM":
+      if (choiceId === "CONTINUE") return 4;
+      if (choiceId === "LATER") return -1;
+      return 0;
+    case "ILLEGAL_WASTE_DUMPING":
+      if (choiceId === "REPORT") return -6;
+      if (choiceId === "SILENT") return 8;
+      return 0;
+    case "FAMILY_ILLNESS":
+      if (choiceId === "PRIVATE_TREATMENT") return -2;
+      return 0;
+    case "HEALTH_DEGRADATION_WARNING":
+      if (choiceId === "VISIT_DOCTOR") return -3;
+      if (choiceId === "IGNORE_FOR_NOW") return 2;
+      return 0;
+    case "SEVERE_STORM":
+      if (choiceId === "REBUILD_HIGHER") return 2;
+      if (choiceId === "MINIMAL_REPAIR") return 1;
+      return 0;
+    case "EQUIPMENT_FAILURE":
+      if (choiceId === "DEMAND_MAINTENANCE") return -5;
+      if (choiceId === "CONTINUE_OPERATIONS") return 7;
+      return 0;
+    default:
+      return 0;
+  }
+}
+
 function checkEventTriggers(state) {
   if (state.activeEvent) return state;
 
@@ -25,13 +75,6 @@ function checkEventTriggers(state) {
     Math.random() < 0.3
   ) {
     return { ...state, activeEvent: { id: "ILLEGAL_WASTE_DUMPING" } };
-  }
-
-  if (
-    state.environment.freshGroundWaterLevel <= 40 &&
-    state.factory.toxicWaste >= 400
-  ) {
-    return { ...state, activeEvent: { id: "WATER_TABLE_COLLAPSE_WARNING" } };
   }
 
   if (
@@ -65,16 +108,12 @@ function applyLossConditions(state) {
     state.meta.gameOver = true;
     if (state.environment.aqi >= 300) {
       state.meta.deathCause = "severe respiratory disease";
-    } else if (state.environment.freshGroundWaterLevel <= 20) {
-      state.meta.deathCause = "water-borne disease";
+    } else if (state.factory.toxicWaste >= 450) {
+      state.meta.deathCause = "toxic exposure";
     } else {
       state.meta.deathCause = "chronic disease";
     }
     return state;
-  }
-
-  if (state.environment.freshGroundWaterLevel <= 0) {
-    state.meta.gameOver = true;
   }
 
   if (state.factory.stability <= 0) {
@@ -92,7 +131,6 @@ function applyDayEndEffects(state) {
     newState.player.money += 300;
     newState.environment.aqi += 20;
     newState.factory.toxicWaste += 50;
-    newState.environment.freshGroundWaterLevel -= 5;
     newState.environment.seaWaterLevel += 1;
     newState.factory.equipmentWear += 5;
   }
@@ -101,8 +139,7 @@ function applyDayEndEffects(state) {
   // Passive penalty: worn equipment continuously worsens AQI.
   newState.environment.aqi += newState.factory.equipmentWear / 10;
 
-  // 3) Update water level
-  newState.environment.freshGroundWaterLevel -= 2;
+  // 3) Update sea water level
   newState.environment.seaWaterLevel += newState.environment.climateStress / 200;
 
   // 4) Update climate stress
@@ -110,12 +147,20 @@ function applyDayEndEffects(state) {
     newState.environment.aqi / 100 +
     newState.factory.toxicWaste / 200;
 
-  // 5) Apply health damage
+  // 5) Treadmill-of-production pressure:
+  // higher growth dependence boosts output while externalizing costs.
+  const treadmillPressure = newState.society.treadmillOfProduction / 100;
+  newState.factory.profitability += treadmillPressure * 2;
+  newState.environment.aqi += treadmillPressure * 8;
+  newState.factory.toxicWaste += treadmillPressure * 10;
+  newState.player.health -= treadmillPressure * 2;
+
+  // 6) Apply health damage
   if (newState.environment.aqi >= 300) newState.player.health -= 20;
   else if (newState.environment.aqi >= 200) newState.player.health -= 10;
 
   // Additional systemic penalties
-  if (newState.environment.freshGroundWaterLevel <= 20) {
+  if (newState.factory.toxicWaste >= 400) {
     newState.player.money -= 200;
   }
   if (newState.factory.profitability <= 10) {
@@ -123,10 +168,10 @@ function applyDayEndEffects(state) {
     newState.player.jobSecurity -= 40;
   }
 
-  // 6) Check event triggers
+  // 7) Check event triggers
   newState = checkEventTriggers(newState);
 
-  // 7) Check loss conditions
+  // 8) Check loss conditions
   return applyLossConditions(newState);
 }
 
@@ -137,6 +182,7 @@ function advanceDayIfNeeded(state) {
   newState.meta.day += 1;
   newState.meta.hoursUsed = 0;
   newState.meta.workDecisionMade = false;
+  newState.meta.lastActionType = null;
   newState.player.money -= newState.economy.householdExpense;
   return newState;
 }
@@ -172,22 +218,7 @@ function applyEventChoice(state, eventId, choiceId) {
         newState.player.jobSecurity += 5;
         newState.player.money += 100;
         newState.factory.toxicWaste += 100;
-        newState.environment.freshGroundWaterLevel -= 5;
         newState.environment.climateStress += 5;
-      }
-      break;
-
-    case "WATER_TABLE_COLLAPSE_WARNING":
-      if (choiceId === "RESTRICT") {
-        newState.factory.stability -= 15;
-        newState.player.money -= 100;
-        newState.environment.freshGroundWaterLevel += 10;
-        newState.factory.profitability -= 10;
-      } else if (choiceId === "IGNORE") {
-        newState.factory.stability += 5;
-        newState.environment.freshGroundWaterLevel -= 15;
-        newState.factory.toxicWaste += 50;
-        newState.environment.climateStress += 10;
       }
       break;
 
@@ -251,6 +282,8 @@ function isBlockedByEvent(state, actionType) {
   return [
     "REQUEST_BUILD_HOME",
     "GO_TO_WORK",
+    "FAMILY_REST_DAY",
+    "COMMUNITY_CLEANUP",
     "SKIP_WORK",
     "EXTRA_SHIFT",
     "SLEEP"
@@ -264,7 +297,14 @@ export function gameReducer(state, action) {
   switch (action.type) {
     case "REQUEST_BUILD_HOME": {
       if (state.player.home.hasConcreteBarrier) return state;
-      return { ...state, activeEvent: { id: "HOME_BUILD_CONFIRM" } };
+      return applyTreadmillShift(
+        {
+          ...state,
+          activeEvent: { id: "HOME_BUILD_CONFIRM" },
+          meta: { ...state.meta, lastActionType: "REQUEST_BUILD_HOME" }
+        },
+        1
+      );
     }
 
     case "GO_TO_WORK": {
@@ -273,43 +313,121 @@ export function gameReducer(state, action) {
       if (state.meta.workDecisionMade) return state;
       if (nextHoursUsed > HOURS_PER_DAY) return state;
 
-      return advanceDayIfNeeded({
-        ...state,
-        meta: {
-          ...state.meta,
-          hoursUsed: nextHoursUsed,
-          workDecisionMade: true
-        },
-        player: {
-          ...state.player,
-          money: state.player.money + state.economy.dailyWage,
-          health: state.player.health - 5,
-          jobSecurity: state.player.jobSecurity + 2
-        },
-        factory: {
-          ...state.factory,
-          toxicWaste: state.factory.toxicWaste + 10,
-          equipmentWear: state.factory.equipmentWear + 2,
-          profitability: state.factory.profitability + 2
-        },
-        environment: {
-          ...state.environment,
-          aqi: state.environment.aqi + 5
-        }
-      });
+      return advanceDayIfNeeded(
+        applyTreadmillShift(
+          {
+            ...state,
+            meta: {
+              ...state.meta,
+              hoursUsed: nextHoursUsed,
+              workDecisionMade: true,
+              lastActionType: "GO_TO_WORK"
+            },
+            player: {
+              ...state.player,
+              money: state.player.money + state.economy.dailyWage,
+              health: state.player.health - 5,
+              jobSecurity: state.player.jobSecurity + 2
+            },
+            factory: {
+              ...state.factory,
+              toxicWaste: state.factory.toxicWaste + 10,
+              equipmentWear: state.factory.equipmentWear + 2,
+              profitability: state.factory.profitability + 2
+            },
+            environment: {
+              ...state.environment,
+              aqi: state.environment.aqi + 5
+            }
+          },
+          6
+        )
+      );
+    }
+
+    case "FAMILY_REST_DAY": {
+      const REST_HOURS = 8;
+      const nextHoursUsed = state.meta.hoursUsed + REST_HOURS;
+      const followUpAfterSkip =
+        state.meta.workDecisionMade && state.meta.lastActionType === "SKIP_WORK";
+      if (state.meta.workDecisionMade && !followUpAfterSkip) return state;
+      if (nextHoursUsed > HOURS_PER_DAY) return state;
+
+      return advanceDayIfNeeded(
+        applyTreadmillShift(
+          {
+            ...state,
+            meta: {
+              ...state.meta,
+              hoursUsed: nextHoursUsed,
+              workDecisionMade: true,
+              lastActionType: "FAMILY_REST_DAY"
+            },
+            player: {
+              ...state.player,
+              health: state.player.health + 12,
+              jobSecurity: state.player.jobSecurity - 8
+            }
+          },
+          -6
+        )
+      );
+    }
+
+    case "COMMUNITY_CLEANUP": {
+      const CLEANUP_HOURS = 8;
+      const nextHoursUsed = state.meta.hoursUsed + CLEANUP_HOURS;
+      const followUpAfterSkip =
+        state.meta.workDecisionMade && state.meta.lastActionType === "SKIP_WORK";
+      if (state.meta.workDecisionMade && !followUpAfterSkip) return state;
+      if (nextHoursUsed > HOURS_PER_DAY) return state;
+
+      return advanceDayIfNeeded(
+        applyTreadmillShift(
+          {
+            ...state,
+            meta: {
+              ...state.meta,
+              hoursUsed: nextHoursUsed,
+              workDecisionMade: true,
+              lastActionType: "COMMUNITY_CLEANUP"
+            },
+            player: {
+              ...state.player,
+              money: state.player.money - 50
+            },
+            factory: {
+              ...state.factory,
+              toxicWaste: state.factory.toxicWaste - 35
+            },
+            environment: {
+              ...state.environment,
+              aqi: state.environment.aqi - 15
+            }
+          },
+          -7
+        )
+      );
     }
 
     case "SKIP_WORK":
       if (state.meta.workDecisionMade) return state;
-      return {
-        ...state,
-        meta: { ...state.meta, workDecisionMade: true },
-        player: {
-          ...state.player,
-          jobSecurity: state.player.jobSecurity - 6,
-          health: state.player.health + 2
-        }
-      };
+      return applyTreadmillShift(
+        {
+          ...state,
+          meta: {
+            ...state.meta,
+            workDecisionMade: true,
+            lastActionType: "SKIP_WORK"
+          },
+          player: {
+            ...state.player,
+            jobSecurity: state.player.jobSecurity - 6,
+            health: state.player.health + 2
+          }
+        },
+        -4
+      );
 
     case "EXTRA_SHIFT": {
       if (!state.meta.workDecisionMade) return state;
@@ -317,26 +435,35 @@ export function gameReducer(state, action) {
       const nextHoursUsed = state.meta.hoursUsed + EXTRA_SHIFT_HOURS;
       if (nextHoursUsed > HOURS_PER_DAY) return state;
 
-      return advanceDayIfNeeded({
-        ...state,
-        meta: { ...state.meta, hoursUsed: nextHoursUsed },
-        player: {
-          ...state.player,
-          money: state.player.money + state.economy.dailyWage * 0.75,
-          health: state.player.health - 5,
-          jobSecurity: state.player.jobSecurity + 5
-        },
-        factory: {
-          ...state.factory,
-          toxicWaste: state.factory.toxicWaste + 20,
-          equipmentWear: state.factory.equipmentWear + 3,
-          profitability: state.factory.profitability + 5
-        },
-        environment: {
-          ...state.environment,
-          aqi: state.environment.aqi + 10
-        }
-      });
+      return advanceDayIfNeeded(
+        applyTreadmillShift(
+          {
+            ...state,
+            meta: {
+              ...state.meta,
+              hoursUsed: nextHoursUsed,
+              lastActionType: "EXTRA_SHIFT"
+            },
+            player: {
+              ...state.player,
+              money: state.player.money + state.economy.dailyWage * 0.75,
+              health: state.player.health - 5,
+              jobSecurity: state.player.jobSecurity + 5
+            },
+            factory: {
+              ...state.factory,
+              toxicWaste: state.factory.toxicWaste + 20,
+              equipmentWear: state.factory.equipmentWear + 3,
+              profitability: state.factory.profitability + 5
+            },
+            environment: {
+              ...state.environment,
+              aqi: state.environment.aqi + 10
+            }
+          },
+          9
+        )
+      );
     }
 
     case "SLEEP": {
@@ -360,14 +487,18 @@ export function gameReducer(state, action) {
         state.player.money -
         (dayAdvanced ? nextState.economy.householdExpense : 0);
 
-      return {
-        ...nextState,
-        player: {
-          ...nextState.player,
-          // Sleeping can keep or reduce money, but never increase it.
-          money: Math.min(nextState.player.money, baselineMoneyAfterSleep)
-        }
-      };
+      return applyTreadmillShift(
+        {
+          ...nextState,
+          meta: { ...nextState.meta, lastActionType: "SLEEP" },
+          player: {
+            ...nextState.player,
+            // Sleeping can keep or reduce money, but never increase it.
+            money: Math.min(nextState.player.money, baselineMoneyAfterSleep)
+          }
+        },
+        -2
+      );
     }
 
     case "UPDATE_WAGE": {
@@ -392,15 +523,16 @@ export function gameReducer(state, action) {
     case "RESOLVE_EVENT": {
       if (!state.activeEvent) return state;
 
+      const eventId = state.activeEvent.id;
       const choiceId = action.payload?.choiceId;
       if (!choiceId) return { ...state, activeEvent: null };
 
-      const resolvedState = applyEventChoice(
-        state,
-        state.activeEvent.id,
-        choiceId
+      const resolvedState = applyEventChoice(state, eventId, choiceId);
+      const treadmillShift = getEventTreadmillShift(eventId, choiceId);
+      return applyTreadmillShift(
+        { ...resolvedState, activeEvent: null },
+        treadmillShift
       );
-      return { ...resolvedState, activeEvent: null };
     }
 
     default:

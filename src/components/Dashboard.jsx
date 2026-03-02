@@ -6,9 +6,9 @@ const MAX_LEVELS = {
   jobSecurity: 100,
   aqi: 500,
   seaWaterLevel: 200,
-  freshGroundWaterLevel: 100,
   climateStress: 100,
   toxicWaste: 500,
+  treadmillOfProduction: 100,
   equipmentWear: 100,
   factoryStability: 100,
   factoryProfitability: 100
@@ -73,12 +73,19 @@ export default function Dashboard() {
             MAX_LEVELS.seaWaterLevel,
             2
           )}
+        </div>
+
+        <div className="dashboard-group">
+
           {renderMetricBar(
-            "Fresh Ground Water Level",
-            state.environment.freshGroundWaterLevel,
-            MAX_LEVELS.freshGroundWaterLevel,
-            2
+            "Treadmill Of Production",
+            state.society.treadmillOfProduction,
+            MAX_LEVELS.treadmillOfProduction
           )}
+          <p>
+            Higher treadmill means stronger pressure to keep production growing.
+            You usually earn more short-term, but pollution and health risks rise.
+          </p>
         </div>
       </div>
 
