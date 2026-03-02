@@ -2,9 +2,10 @@ import { useContext } from "react";
 import { GameProvider } from "./state/GameContext";
 import { GameContext } from "./state/GameContext";
 import Dashboard from "./components/Dashboard";
-import IslandView from "./components/IslandView";
-import DecisionPanel from "./components/DecisionPanel";
 import EndScreen from "./components/EndScreen";
+import Controls from "./components/Controls";
+import EventPopup from "./components/EventPopup";
+
 
 function GameScreen() {
   const { state } = useContext(GameContext);

@@ -1,5 +1,6 @@
 import { useContext, useEffect } from "react";
 import { GameContext } from "../state/GameContext";
+import IslandScene from "./IslandScene"; // <-- make sure this path matches where IslandScene.jsx lives
 
 const MAX_LEVELS = {
   health: 100,
@@ -11,20 +12,23 @@ const MAX_LEVELS = {
   toxicWaste: 500,
   equipmentWear: 100,
   factoryStability: 100,
-  factoryProfitability: 100
+  factoryProfitability: 100,
 };
 
 export default function Dashboard() {
   const { state, dispatch } = useContext(GameContext);
+
   const formatTimeFromStart = (hoursFromStart) => {
-    const startHour24 = 9; // 9:00 AM
+    const startHour24 = 9;
     const hour24 = (startHour24 + hoursFromStart) % 24;
     const period = hour24 >= 12 ? "PM" : "AM";
     const hour12 = hour24 % 12 || 12;
     return `${hour12}:00 ${period}`;
   };
+
   const formatWithMax = (value, max, decimals = 0) =>
     `${Number(value).toFixed(decimals)}/${max}`;
+
   const renderMetricBar = (label, value, max, decimals = 0) => {
     const clampedValue = Math.max(0, Math.min(value, max));
     return (
@@ -42,8 +46,15 @@ export default function Dashboard() {
     dispatch({ type: "UPDATE_WAGE" });
   }, [state.player.jobSecurity]);
 
+  // map seaWaterLevel (0..200) into 0..1 for IslandScene overlay
+  const water01 = Math.max(
+    0,
+    Math.min(1, state.environment.seaWaterLevel / MAX_LEVELS.seaWaterLevel)
+  );
+
   return (
     <div className="dashboard">
+      {/* LEFT COLUMN */}
       <div className="dashboard-main">
         <div className="dashboard-group">
           <p>Day: {state.meta.day}</p>
@@ -58,21 +69,12 @@ export default function Dashboard() {
         <div className="dashboard-group">
           <p>Money: ${state.player.money}</p>
           {renderMetricBar("Health", state.player.health, MAX_LEVELS.health)}
-          {renderMetricBar(
-            "Job Security",
-            state.player.jobSecurity,
-            MAX_LEVELS.jobSecurity
-          )}
+          {renderMetricBar("Job Security", state.player.jobSecurity, MAX_LEVELS.jobSecurity)}
         </div>
 
         <div className="dashboard-group">
           {renderMetricBar("AQI", state.environment.aqi, MAX_LEVELS.aqi)}
-          {renderMetricBar(
-            "Sea Water Level",
-            state.environment.seaWaterLevel,
-            MAX_LEVELS.seaWaterLevel,
-            2
-          )}
+          {renderMetricBar("Sea Water Level", state.environment.seaWaterLevel, MAX_LEVELS.seaWaterLevel, 2)}
           {renderMetricBar(
             "Fresh Ground Water Level",
             state.environment.freshGroundWaterLevel,
@@ -80,9 +82,15 @@ export default function Dashboard() {
             2
           )}
         </div>
+
+        {/* ISLAND PANEL (this is what you were missing) */}
+        <div className="island">
+          <IslandScene waterLevel={water01} />
+        </div>
       </div>
 
-      <div className="dashboard-group hidden-group">
+      {/* RIGHT COLUMN */}
+      <div className="dashboard-right dashboard-group hidden-group">
         <p>Hidden Variables</p>
 
         <div className="hidden-subgroup">
@@ -94,36 +102,15 @@ export default function Dashboard() {
 
         <div className="hidden-subgroup">
           <p className="hidden-subgroup-title">Environment</p>
-          {renderMetricBar(
-            "Climate Stress",
-            state.environment.climateStress,
-            MAX_LEVELS.climateStress,
-            2
-          )}
+          {renderMetricBar("Climate Stress", state.environment.climateStress, MAX_LEVELS.climateStress, 2)}
         </div>
 
         <div className="hidden-subgroup">
           <p className="hidden-subgroup-title">Factory</p>
-          {renderMetricBar(
-            "Toxic Waste",
-            state.factory.toxicWaste,
-            MAX_LEVELS.toxicWaste
-          )}
-          {renderMetricBar(
-            "Equipment Wear",
-            state.factory.equipmentWear,
-            MAX_LEVELS.equipmentWear
-          )}
-          {renderMetricBar(
-            "Factory Stability",
-            state.factory.stability,
-            MAX_LEVELS.factoryStability
-          )}
-          {renderMetricBar(
-            "Factory Profitability",
-            state.factory.profitability,
-            MAX_LEVELS.factoryProfitability
-          )}
+          {renderMetricBar("Toxic Waste", state.factory.toxicWaste, MAX_LEVELS.toxicWaste)}
+          {renderMetricBar("Equipment Wear", state.factory.equipmentWear, MAX_LEVELS.equipmentWear)}
+          {renderMetricBar("Factory Stability", state.factory.stability, MAX_LEVELS.factoryStability)}
+          {renderMetricBar("Factory Profitability", state.factory.profitability, MAX_LEVELS.factoryProfitability)}
         </div>
 
         <div className="hidden-subgroup">
@@ -134,12 +121,8 @@ export default function Dashboard() {
         <div className="hidden-subgroup">
           <p className="hidden-subgroup-title">Home</p>
           <p>Storm Vulnerability: {state.meta.stormVulnerability ? "Yes" : "No"}</p>
-          <p>
-            Home Protection Multiplier: {state.player.home.stormProtectionMultiplier}
-          </p>
-          <p>
-            Has Concrete Barrier: {state.player.home.hasConcreteBarrier ? "Yes" : "No"}
-          </p>
+          <p>Home Protection Multiplier: {state.player.home.stormProtectionMultiplier}</p>
+          <p>Has Concrete Barrier: {state.player.home.hasConcreteBarrier ? "Yes" : "No"}</p>
         </div>
       </div>
     </div>
