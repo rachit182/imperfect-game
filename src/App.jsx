@@ -1,21 +1,24 @@
-import { GameProvider, useGame } from "./GameContext";
+import { useContext } from "react";
+import { GameProvider } from "./state/GameContext";
+import { GameContext } from "./state/GameContext";
 import Dashboard from "./components/Dashboard";
-import IslandView from "./components/IslandScene";
+import IslandView from "./components/IslandView";
 import DecisionPanel from "./components/DecisionPanel";
 import EndScreen from "./components/EndScreen";
 
-function Game() {
-  const { state } = useGame();
+function GameScreen() {
+  const { state } = useContext(GameContext);
 
-  if (state.phase === "END") {
-    return <EndScreen />;
+  if (state.meta.gameOver) {
+    return <EndScreen state={state} />;
   }
 
   return (
-    <div className="app">
+    <div className="container">
+      <h1>Imperfect the game</h1>
       <Dashboard />
-      <IslandView />
-      <DecisionPanel />
+      <Controls />
+      <EventPopup />
     </div>
   );
 }
@@ -23,7 +26,7 @@ function Game() {
 export default function App() {
   return (
     <GameProvider>
-      <Game />
+      <GameScreen />
     </GameProvider>
   );
 }

@@ -1,7 +1,8 @@
-import { createContext, useContext, useReducer } from "react";
-import { gameReducer, initialState } from "./gameReducer";
+import { createContext, useReducer } from "react";
+import { initialState } from "./initialState";
+import { gameReducer } from "./gameReducer";
 
-const GameContext = createContext();
+export const GameContext = createContext();
 
 export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
@@ -11,8 +12,4 @@ export function GameProvider({ children }) {
       {children}
     </GameContext.Provider>
   );
-}
-
-export function useGame() {
-  return useContext(GameContext);
 }
