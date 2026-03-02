@@ -1,0 +1,117 @@
+/* src/components/Hud.css */
+
+.hud {
+    width: 100%;
+    padding: 22px 22px 8px;
+}
+
+.hud__inner {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 18px;
+    align-items: center;
+}
+
+.hud__left {
+    padding-left: 2px;
+}
+
+.hud__kicker {
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.hud__subtitle {
+    margin-top: 6px;
+    font-size: 16px;
+    opacity: 0.75;
+}
+
+.hud__meters {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
+.meter {
+    width: 220px;
+    padding: 14px 14px 12px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
+}
+
+.meter__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.meter__label {
+    font-size: 16px;
+    font-weight: 600;
+    opacity: 0.92;
+
+    /* ✅ allow wrapping (up to 2 lines) */
+    white-space: normal;
+    overflow: hidden;
+    max-width: 160px;
+    line-height: 1.15;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    /* 2-line wrap */
+    -webkit-box-orient: vertical;
+}
+
+.meter__value {
+    font-size: 18px;
+    font-weight: 700;
+    opacity: 0.95;
+    flex: 0 0 auto;
+}
+
+.meter__track {
+    height: 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+}
+
+.meter__fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 180ms ease;
+}
+
+.meter__fill--good {
+    background: #35d07f;
+}
+
+.meter__fill--warn {
+    background: #f3c84b;
+}
+
+.meter__fill--bad {
+    background: #e24d4d;
+}
+
+@media (max-width: 860px) {
+    .hud__inner {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .meter {
+        width: 240px;
+    }
+}
