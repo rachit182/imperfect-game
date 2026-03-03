@@ -3,9 +3,9 @@ import { GameContext } from "../state/GameContext";
 
 const EVENT_CONTENT = {
   HOME_BUILD_CONFIRM: {
-    title: "Build Home",
+    title: "Improve Home",
     lines: [
-      "Building a concrete home will cost you $1600.",
+      "Improving your home with a concrete barrier will cost you $1600.",
       "Continue now, or do it later?"
     ],
     choices: [
@@ -23,17 +23,6 @@ const EVENT_CONTENT = {
     choices: [
       { id: "REPORT", label: "Report to authorities" },
       { id: "SILENT", label: "Stay silent" }
-    ]
-  },
-  WATER_TABLE_COLLAPSE_WARNING: {
-    title: "Water Table Collapse Warning",
-    lines: [
-      "The island groundwater is running low and saltwater intrusion has begun.",
-      "Experts recommend restricting factory water use."
-    ],
-    choices: [
-      { id: "RESTRICT", label: "Support water restriction" },
-      { id: "IGNORE", label: "Ignore warning" }
     ]
   },
   FAMILY_ILLNESS: {

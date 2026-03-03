@@ -3,9 +3,9 @@ const MAX_LEVELS = {
   jobSecurity: 100,
   aqi: 500,
   seaWaterLevel: 200,
-  freshGroundWaterLevel: 100,
   climateStress: 100,
   toxicWaste: 500,
+  treadmillOfProduction: 100,
   equipmentWear: 100,
   factoryStability: 100,
   factoryProfitability: 100
@@ -54,12 +54,6 @@ export default function EndScreen({ state }) {
             2
           )}
           {renderMetricBar(
-            "Fresh Ground Water Level",
-            state.environment.freshGroundWaterLevel,
-            MAX_LEVELS.freshGroundWaterLevel,
-            2
-          )}
-          {renderMetricBar(
             "Climate Stress",
             state.environment.climateStress,
             MAX_LEVELS.climateStress,
@@ -88,6 +82,11 @@ export default function EndScreen({ state }) {
             "Toxic Waste",
             state.factory.toxicWaste,
             MAX_LEVELS.toxicWaste
+          )}
+          {renderMetricBar(
+            "Treadmill Of Production",
+            state.society.treadmillOfProduction,
+            MAX_LEVELS.treadmillOfProduction
           )}
         </div>
       </div>

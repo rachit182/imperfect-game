@@ -1,18 +1,18 @@
 import { useContext, useEffect } from "react";
 import { GameContext } from "../state/GameContext";
-import IslandScene from "./IslandScene"; // <-- make sure this path matches where IslandScene.jsx lives
+import IslandScene from "./IslandScene";
 
 const MAX_LEVELS = {
   health: 100,
   jobSecurity: 100,
   aqi: 500,
   seaWaterLevel: 200,
-  freshGroundWaterLevel: 100,
   climateStress: 100,
   toxicWaste: 500,
+  treadmillOfProduction: 100,
   equipmentWear: 100,
   factoryStability: 100,
-  factoryProfitability: 100,
+  factoryProfitability: 100
 };
 
 export default function Dashboard() {
@@ -74,13 +74,21 @@ export default function Dashboard() {
 
         <div className="dashboard-group">
           {renderMetricBar("AQI", state.environment.aqi, MAX_LEVELS.aqi)}
-          {renderMetricBar("Sea Water Level", state.environment.seaWaterLevel, MAX_LEVELS.seaWaterLevel, 2)}
           {renderMetricBar(
-            "Fresh Ground Water Level",
-            state.environment.freshGroundWaterLevel,
-            MAX_LEVELS.freshGroundWaterLevel,
+            "Sea Water Level",
+            state.environment.seaWaterLevel,
+            MAX_LEVELS.seaWaterLevel,
             2
           )}
+          {renderMetricBar(
+            "Treadmill Of Production",
+            state.society.treadmillOfProduction,
+            MAX_LEVELS.treadmillOfProduction
+          )}
+          <p>
+            Higher treadmill means stronger pressure to keep production growing.
+            You usually earn more short-term, but pollution and health risks rise.
+          </p>
         </div>
 
         {/* ISLAND PANEL (this is what you were missing) */}
@@ -89,7 +97,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* RIGHT COLUMN */}
       <div className="dashboard-right dashboard-group hidden-group">
         <p>Hidden Variables</p>
 
