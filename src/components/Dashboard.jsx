@@ -28,7 +28,8 @@ const METRIC_DESCRIPTIONS = {
   "Job Security": "How stable your job is. Lower security means higher layoff risk.",
   AQI: "Air quality index. Higher AQI means worse air and more health damage.",
   "Sea Water Level": "How much the sea has risen around the island.",
-  "Treadmill Of Production": "Pressure to keep producing more for short-term gains."
+  "Treadmill Of Production":
+    "Higher treadmill means stronger pressure to keep production growing. You usually earn more short-term, but pollution and health risks rise."
 };
 
 export default function Dashboard() {
@@ -127,10 +128,6 @@ export default function Dashboard() {
           state.society.treadmillOfProduction,
           MAX_LEVELS.treadmillOfProduction
         )}
-        <p>
-          Higher treadmill means stronger pressure to keep production growing.
-          You usually earn more short-term, but pollution and health risks rise.
-        </p>
       </div>
 
     </div>
