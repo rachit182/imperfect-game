@@ -35,23 +35,23 @@ const METRIC_DESCRIPTIONS = {
 export default function Dashboard() {
   const { state, dispatch } = useContext(GameContext);
 
-  const formatWithMax = (value, max, decimals = 0) =>
-    `${Number(value).toFixed(decimals)}/${max}`;
+  const formatValue = (value, decimals = 0) => Number(value).toFixed(decimals);
 
   const renderMetricBar = (label, value, max, decimals = 0) => {
     const clampedValue = Math.max(0, Math.min(value, max));
+    const fillPercent = (clampedValue / max) * 100;
     const metricIcon = METRIC_ICONS[label] || "•";
     const metricDescription = METRIC_DESCRIPTIONS[label] || "No description available.";
     return (
       <div className="metric-row">
-        <div className="metric-head">
-          <span>{formatWithMax(value, max, decimals)}</span>
-        </div>
         <div className="metric-track-row">
           <span className="metric-icon-label" role="img" aria-label={label} title={label}>
             {metricIcon}
           </span>
-          <progress className="metric-bar" value={clampedValue} max={max} />
+          <div className="metric-bar-track" role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={clampedValue}>
+            <span className="metric-bar-fill" style={{ width: `${fillPercent}%` }} />
+            <span className="metric-bar-value">{formatValue(value, decimals)}</span>
+          </div>
           <span className="metric-info-wrap" tabIndex={0} aria-label={`${label} info`}>
             <span className="metric-info-icon">i</span>
             <span className="metric-tooltip">
@@ -118,7 +118,7 @@ export default function Dashboard() {
           "Sea Water Level",
           state.environment.seaWaterLevel,
           MAX_LEVELS.seaWaterLevel,
-          2
+          0
         )}
       </div>
 
