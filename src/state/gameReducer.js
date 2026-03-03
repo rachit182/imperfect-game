@@ -131,7 +131,7 @@ function applyDayEndEffects(state) {
     newState.player.money += 300;
     newState.environment.aqi += 20;
     newState.factory.toxicWaste += 50;
-    newState.environment.seaWaterLevel += 1;
+    newState.environment.seaWaterLevel += 20;
     newState.factory.equipmentWear += 5;
   }
 
@@ -139,8 +139,9 @@ function applyDayEndEffects(state) {
   // Passive penalty: worn equipment continuously worsens AQI.
   newState.environment.aqi += newState.factory.equipmentWear / 10;
 
-  // 3) Update sea water level
-  newState.environment.seaWaterLevel += newState.environment.climateStress / 200;
+  // 3) Update sea water level (faster baseline + stronger climate effect)
+  newState.environment.seaWaterLevel +=
+    8 + newState.environment.climateStress / 8;
 
   // 4) Update climate stress
   newState.environment.climateStress +=
