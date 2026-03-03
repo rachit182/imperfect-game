@@ -93,7 +93,10 @@ export default function Dashboard() {
 
         {/* ISLAND PANEL (this is what you were missing) */}
         <div className="island">
-          <IslandScene waterLevel={water01} />
+          <IslandScene
+            waterLevel={water01}
+            fortified={state.player.home.hasConcreteBarrier}
+          />
         </div>
       </div>
 

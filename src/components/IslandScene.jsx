@@ -47,9 +47,29 @@ function drawOutlinedRect(ctx, x, y, w, h, fill, outline) {
     ctx.fillRect(x, y, w, h);
 }
 
-export default function IslandScene({ waterLevel = 0 }) {
+/**
+ * IslandScene
+ * - waterLevel: 0..1 (derived from environment.seaWaterLevel / 200)
+ * - fortified: boolean (true when "Improve Home" has been purchased)
+ *
+ * Behavior:
+ * - If fortified: we visually show a sturdier house (different colors)
+ * - If fortified: we reduce the effective flood overlay (levees/barrier effect)
+ */
+export default function IslandScene({ waterLevel = 0, fortified = false }) {
     const draw = useCallback(
         (ctx, w, h) => {
+            // ==========================
+            // WATER LEVEL (with levee effect)
+            // ==========================
+            const baseLevel = clamp01(waterLevel);
+
+            // Levee/barrier reduces local flooding near the home, not the ocean itself.
+            // We model that as a reduction in the overlay rise amount.
+            // Tune these numbers based on feel.
+            const leveeReduction = fortified ? 0.22 : 0.0; // ~22% less visible flooding
+            const level = clamp01(baseLevel - leveeReduction);
+
             // ==========================
             // PALETTE
             // ==========================
@@ -82,14 +102,26 @@ export default function IslandScene({ waterLevel = 0 }) {
             const OUTLINE = "#1a1a1a";
             const FOAM = "#e9fbff";
 
-            // House
-            const HOUSE_WALL = "#f7f4ee";
-            const HOUSE_ROOF = "#e14b3a";
-            const HOUSE_ROOF_HI = "#f06152";
-            const HOUSE_SHADOW = "#e3dfd7";
+            // House (base vs fortified)
+            const HOUSE_OUTLINE = "#111111";
             const DOOR = "#7a4b20";
             const WINDOW = "#7fd8ff";
-            const HOUSE_OUTLINE = "#111111";
+
+            const HOUSE_WALL_BASE = "#f7f4ee";
+            const HOUSE_SHADOW_BASE = "#e3dfd7";
+            const HOUSE_ROOF_BASE = "#e14b3a";
+            const HOUSE_ROOF_HI_BASE = "#f06152";
+
+            // Fortified: slightly cooler/stone-like wall, darker outline accents, roof slightly deeper
+            const HOUSE_WALL_FORT = "#e6edf5";       // sturdier "reinforced" vibe
+            const HOUSE_SHADOW_FORT = "#cfd8e3";
+            const HOUSE_ROOF_FORT = "#c83a2e";
+            const HOUSE_ROOF_HI_FORT = "#dd5348";
+
+            const HOUSE_WALL = fortified ? HOUSE_WALL_FORT : HOUSE_WALL_BASE;
+            const HOUSE_SHADOW = fortified ? HOUSE_SHADOW_FORT : HOUSE_SHADOW_BASE;
+            const HOUSE_ROOF = fortified ? HOUSE_ROOF_FORT : HOUSE_ROOF_BASE;
+            const HOUSE_ROOF_HI = fortified ? HOUSE_ROOF_HI_FORT : HOUSE_ROOF_HI_BASE;
 
             // Factory
             const FACTORY = "#6b6b6b";
@@ -393,19 +425,13 @@ export default function IslandScene({ waterLevel = 0 }) {
             // ==========================
             // HOUSE (properly seated)
             // ==========================
-
-            // moved slightly up + left so it sits above cliff face
             const houseAnchor = {
-                x: c1.x - 11,   // 1 tile further left
-                y: c1.y + 3,    // 2 tiles higher
+                x: c1.x - 11,
+                y: c1.y + 3,
             };
 
             const houseX = px(houseAnchor.x) - 2;
             const houseY = py(houseAnchor.y) - 8;
-
-            // ground shadow
-            // ctx.fillStyle = "rgba(0,0,0,0.28)";
-            // ctx.fillRect(houseX + 6, houseY + 41, 26, 3);
 
             // foundation tint
             ctx.fillStyle = SAND_DARK;
@@ -426,10 +452,22 @@ export default function IslandScene({ waterLevel = 0 }) {
             ctx.fillStyle = HOUSE_SHADOW;
             ctx.fillRect(houseX + 24, houseY + 11, 8, 28);
 
+            // fortified visual cue: add a subtle "reinforcement band" around the base
+            if (fortified) {
+                // darker band
+                ctx.fillStyle = "rgba(40,60,90,0.35)";
+                ctx.fillRect(houseX + 4, houseY + 34, 28, 5);
+                // little rivets
+                ctx.fillStyle = "rgba(255,255,255,0.28)";
+                ctx.fillRect(houseX + 7, houseY + 36, 1, 1);
+                ctx.fillRect(houseX + 14, houseY + 36, 1, 1);
+                ctx.fillRect(houseX + 21, houseY + 36, 1, 1);
+                ctx.fillRect(houseX + 28, houseY + 36, 1, 1);
+            }
+
             // door + window
             drawOutlinedRect(ctx, houseX + 15, houseY + 24, 7, 15, DOOR, HOUSE_OUTLINE);
             drawOutlinedRect(ctx, houseX + 8, houseY + 20, 7, 7, WINDOW, HOUSE_OUTLINE);
-
 
             // ==========================
             // FACTORY PLACEMENT
@@ -498,23 +536,40 @@ export default function IslandScene({ waterLevel = 0 }) {
             ctx.fillRect(clampedFactoryX + 33, factoryY - 28, 6, 3);
 
             // ==========================
-            // RISING WATER OVERLAY (optional)
+            // OPTIONAL: draw a tiny "levee" indicator near the house when fortified
+            // (purely visual; does not affect water rendering besides level reduction above)
             // ==========================
-            const level = clamp01(waterLevel);
-            const maxRisePx = 56;
-            const rise = Math.floor(level * maxRisePx);
+            if (fortified) {
+                // a short dark line on the beach near the house (suggests barrier)
+                ctx.fillStyle = "rgba(20,20,20,0.65)";
+                ctx.fillRect(houseX + 2, houseY + 44, 28, 2);
+                ctx.fillStyle = "rgba(255,255,255,0.15)";
+                ctx.fillRect(houseX + 3, houseY + 43, 26, 1);
+            }
+
+            // ==========================
+            // RISING WATER OVERLAY (local flooding)
+            // ==========================
+            const maxRisePx = 76; // tuned so max sits just above the door in your layout
+            const eased = Math.pow(level, 1.15);
+            const rise = Math.floor(eased * maxRisePx);
 
             if (rise > 0) {
                 ctx.fillStyle = "rgba(10, 30, 70, 0.22)";
                 ctx.fillRect(0, h - rise, w, rise);
             }
         },
-        [waterLevel]
+        [waterLevel, fortified]
     );
 
     return (
         <div className="pixelStage">
-            <PixelCanvas width={LOGICAL_W} height={LOGICAL_H} draw={draw} className="pixelCanvas" />
+            <PixelCanvas
+                width={LOGICAL_W}
+                height={LOGICAL_H}
+                draw={draw}
+                className="pixelCanvas"
+            />
         </div>
     );
 }

@@ -2,6 +2,9 @@ const HOURS_PER_DAY = 24;
 const TREADMILL_MIN = 0;
 const TREADMILL_MAX = 100;
 
+// NEW: how much the levees reduce sea water level immediately
+const HOME_LEVEE_SEA_DROP = 35; // tune this (units are your seaWaterLevel scale: 0..200)
+
 function cloneState(state) {
   return {
     ...state,
@@ -135,8 +138,7 @@ function applyDayEndEffects(state) {
     newState.factory.equipmentWear += 5;
   }
 
-  // 2) Update AQI & toxic waste (already represented by direct action + production)
-  // Passive penalty: worn equipment continuously worsens AQI.
+  // 2) Passive penalty: worn equipment continuously worsens AQI.
   newState.environment.aqi += newState.factory.equipmentWear / 10;
 
   // 3) Update sea water level (faster baseline + stronger climate effect)
@@ -148,8 +150,7 @@ function applyDayEndEffects(state) {
     newState.environment.aqi / 100 +
     newState.factory.toxicWaste / 200;
 
-  // 5) Treadmill-of-production pressure:
-  // higher growth dependence boosts output while externalizing costs.
+  // 5) Treadmill-of-production pressure
   const treadmillPressure = newState.society.treadmillOfProduction / 100;
   newState.factory.profitability += treadmillPressure * 2;
   newState.environment.aqi += treadmillPressure * 8;
@@ -198,9 +199,19 @@ function applyEventChoice(state, eventId, choiceId) {
         if (newState.player.money < 1600) break;
 
         newState.player.money -= 1600;
+
+        // HOME becomes sturdier
         newState.player.home.hasConcreteBarrier = true;
         newState.player.home.stormProtectionMultiplier = 0.3;
         newState.meta.stormVulnerability = false;
+
+        // NEW: Levees/barrier reduce effective sea level
+        newState.environment.seaWaterLevel = Math.max(
+          0,
+          newState.environment.seaWaterLevel - HOME_LEVEE_SEA_DROP
+        );
+
+        // (optional) upkeep cost stays
         newState.economy.householdExpense = Math.max(
           newState.economy.householdExpense,
           130
@@ -482,7 +493,6 @@ export function gameReducer(state, action) {
         }
       });
 
-      // Sleep should not directly alter money, but day rollover costs/income still apply.
       const dayAdvanced = nextState.meta.day > state.meta.day;
       const baselineMoneyAfterSleep =
         state.player.money -
@@ -494,7 +504,6 @@ export function gameReducer(state, action) {
           meta: { ...nextState.meta, lastActionType: "SLEEP" },
           player: {
             ...nextState.player,
-            // Sleeping can keep or reduce money, but never increase it.
             money: Math.min(nextState.player.money, baselineMoneyAfterSleep)
           }
         },
