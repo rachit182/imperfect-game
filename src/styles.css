@@ -89,6 +89,30 @@ select {
   max-width: min(420px, calc(100vw - 32px));
 }
 
+.hud-top-left {
+  position: absolute;
+  top: 64px;
+  left: 16px;
+  z-index: 15;
+  width: min(420px, calc(100vw - 32px));
+}
+
+.hud-bottom-left {
+  position: absolute;
+  left: 16px;
+  bottom: 98px;
+  z-index: 15;
+  width: min(360px, calc(50vw - 24px));
+}
+
+.hud-bottom-right {
+  position: absolute;
+  right: 16px;
+  bottom: 98px;
+  z-index: 15;
+  width: min(420px, calc(50vw - 24px));
+}
+
 /* Constrain the right panel so long text/labels don't blow out the layout */
 .dashboard-right {
   max-width: 360px;
@@ -483,7 +507,8 @@ button:active {
     max-height: calc(100vh - 70px);
   }
 
-  .hud-corner {
+  .hud-corner,
+  .hud-top-left {
     left: 10px;
     max-width: min(360px, calc(100vw - 20px));
   }
@@ -491,6 +516,23 @@ button:active {
   .hud-hidden-corner {
     right: 10px;
     max-width: min(280px, calc(100vw - 20px));
+  }
+
+  .hud-top-left {
+    top: 56px;
+    width: min(360px, calc(100vw - 20px));
+  }
+
+  .hud-bottom-left {
+    left: 10px;
+    bottom: 86px;
+    width: min(320px, calc(50vw - 16px));
+  }
+
+  .hud-bottom-right {
+    right: 10px;
+    bottom: 86px;
+    width: min(340px, calc(50vw - 16px));
   }
 
   .day-time-overlay {
@@ -513,6 +555,29 @@ button:active {
     left: 10px;
     right: auto;
     max-width: calc(100vw - 20px);
+  }
+
+  .hud-top-left {
+    top: 56px;
+    left: 10px;
+    width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px);
+  }
+
+  .hud-bottom-left {
+    left: 10px;
+    right: 10px;
+    bottom: 156px;
+    width: auto;
+    max-width: none;
+  }
+
+  .hud-bottom-right {
+    left: 10px;
+    right: 10px;
+    bottom: 82px;
+    width: auto;
+    max-width: none;
   }
 
   .day-time-overlay {
