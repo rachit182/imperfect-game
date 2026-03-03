@@ -102,12 +102,45 @@ export default function Dashboard() {
           />
           <span className="clock-center" />
         </div>
+        <div className="time-econ-stack">
+          <div className="time-econ-row">
+            <span className="time-econ-symbol" role="img" aria-label="Daily household expenditure">
+              🧺
+            </span>
+            <span className="time-econ-value">${state.economy.householdExpense}</span>
+            <span className="metric-info-wrap" tabIndex={0} aria-label="Daily household expenditure info">
+              <span className="metric-info-icon">i</span>
+              <span className="metric-tooltip">
+                <strong>Daily Household Expenditure</strong>
+                <span>Daily essential spending needed by your household.</span>
+              </span>
+            </span>
+          </div>
+          <div className="time-econ-row">
+            <span className="time-econ-symbol" role="img" aria-label="Daily wage">
+              💵
+            </span>
+            <span className="time-econ-value">${state.economy.dailyWage}</span>
+            <span className="metric-info-wrap" tabIndex={0} aria-label="Daily wage info">
+              <span className="metric-info-icon">i</span>
+              <span className="metric-tooltip">
+                <strong>Daily Wage</strong>
+                <span>Income you currently earn for a standard workday.</span>
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="dashboard-group money-overlay" tabIndex={0} aria-label="Money info">
+        <p className="money-overlay-value">${state.player.money}</p>
+        <span className="metric-tooltip">
+          <strong>Money</strong>
+          <span>Total cash currently available for decisions and events.</span>
+        </span>
       </div>
 
       <div className="dashboard-group hud-top-left">
-        <p>Daily Household Expenditure: ${state.economy.householdExpense}</p>
-        <p>Daily Wage: ${state.economy.dailyWage}</p>
-        <p>Money: ${state.player.money}</p>
         {renderMetricBar("Health", state.player.health, MAX_LEVELS.health)}
         {renderMetricBar("Job Security", state.player.jobSecurity, MAX_LEVELS.jobSecurity)}
       </div>
