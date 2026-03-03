@@ -53,9 +53,12 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="dashboard">
-      {/* LEFT COLUMN */}
-      <div className="dashboard-main">
+    <div className="dashboard fullscreen-dashboard">
+      <div className="island island-full">
+        <IslandScene waterLevel={water01} />
+      </div>
+
+      <div className="dashboard-main hud-corner">
         <div className="dashboard-group">
           <p>Day: {state.meta.day}</p>
           <p>Time: {formatTimeFromStart(state.meta.hoursUsed)}</p>
@@ -90,48 +93,8 @@ export default function Dashboard() {
             You usually earn more short-term, but pollution and health risks rise.
           </p>
         </div>
-
-        {/* ISLAND PANEL (this is what you were missing) */}
-        <div className="island">
-          <IslandScene waterLevel={water01} />
-        </div>
       </div>
 
-      <div className="dashboard-right dashboard-group hidden-group">
-        <p>Hidden Variables</p>
-
-        <div className="hidden-subgroup">
-          <p className="hidden-subgroup-title">Meta</p>
-          <p>Work Decision Made: {state.meta.workDecisionMade ? "Yes" : "No"}</p>
-          <p>Game Over: {state.meta.gameOver ? "Yes" : "No"}</p>
-          <p>Active Event: {state.activeEvent ? state.activeEvent.id : "None"}</p>
-        </div>
-
-        <div className="hidden-subgroup">
-          <p className="hidden-subgroup-title">Environment</p>
-          {renderMetricBar("Climate Stress", state.environment.climateStress, MAX_LEVELS.climateStress, 2)}
-        </div>
-
-        <div className="hidden-subgroup">
-          <p className="hidden-subgroup-title">Factory</p>
-          {renderMetricBar("Toxic Waste", state.factory.toxicWaste, MAX_LEVELS.toxicWaste)}
-          {renderMetricBar("Equipment Wear", state.factory.equipmentWear, MAX_LEVELS.equipmentWear)}
-          {renderMetricBar("Factory Stability", state.factory.stability, MAX_LEVELS.factoryStability)}
-          {renderMetricBar("Factory Profitability", state.factory.profitability, MAX_LEVELS.factoryProfitability)}
-        </div>
-
-        <div className="hidden-subgroup">
-          <p className="hidden-subgroup-title">Economy</p>
-          <p>Base Wage: ${state.economy.baseWage}</p>
-        </div>
-
-        <div className="hidden-subgroup">
-          <p className="hidden-subgroup-title">Home</p>
-          <p>Storm Vulnerability: {state.meta.stormVulnerability ? "Yes" : "No"}</p>
-          <p>Home Protection Multiplier: {state.player.home.stormProtectionMultiplier}</p>
-          <p>Has Concrete Barrier: {state.player.home.hasConcreteBarrier ? "Yes" : "No"}</p>
-        </div>
-      </div>
     </div>
   );
 }

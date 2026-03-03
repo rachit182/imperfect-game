@@ -22,6 +22,7 @@ body {
   background: var(--bg);
   color: var(--muted);
   margin: 0;
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -37,6 +38,31 @@ body {
   box-sizing: border-box;
 }
 
+.game-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.game-screen h1 {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  margin: 0;
+  font-size: 1.4rem;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  background: rgba(20, 28, 40, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  padding: 8px 16px;
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+}
+
 /* ========== DASHBOARD / HUD ========== */
 /* Two-column dashboard: left = HUD / island, right = debug / hidden vars */
 .dashboard {
@@ -44,6 +70,13 @@ body {
   grid-template-columns: minmax(520px, 1fr) 360px;
   gap: 20px;
   align-items: start;
+}
+
+.fullscreen-dashboard {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* Left cluster inside dashboard */
@@ -56,11 +89,53 @@ body {
   box-sizing: border-box;
 }
 
+.hud-corner {
+  position: absolute;
+  top: 64px;
+  left: 16px;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(420px, calc(100vw - 32px));
+}
+
 /* Constrain the right panel so long text/labels don't blow out the layout */
 .dashboard-right {
   max-width: 360px;
   min-width: 240px;
   overflow: hidden;
+}
+
+.hud-hidden-corner {
+  position: absolute;
+  top: 64px;
+  right: 16px;
+  z-index: 15;
+  max-height: calc(100vh - 90px);
+  overflow: auto;
+}
+
+.dashboard-group {
+  background: rgba(16, 24, 32, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px) saturate(135%);
+  -webkit-backdrop-filter: blur(12px) saturate(135%);
+}
+
+.dashboard-group p {
+  margin: 0 0 8px;
+}
+
+.dashboard-group p:last-child {
+  margin-bottom: 0;
+}
+
+.metric-row + .metric-row {
+  margin-top: 8px;
 }
 
 /* Make long debug text/labels wrap and scroll if necessary */
@@ -149,12 +224,19 @@ body {
   justify-content: center;
 }
 
+.island-full {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  border-radius: 0;
+}
+
 /* PixelCanvas container (if you render a canvas inside a wrapper) */
 .pixelStage {
-  width: calc(100% - 24px);
-  height: calc(100% - 24px);
-  max-width: 880px;
-  max-height: 320px;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -194,19 +276,21 @@ body {
 }
 
 button {
-  background: linear-gradient(145deg, #22252c, #1a1d23);
+  background: rgba(18, 26, 38, 0.75);
   color: #fff;
-  border: 1px solid #333;
+  border: 1px solid rgba(255, 255, 255, 0.28);
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
-  transition: transform 0.16s ease, box-shadow 0.16s ease;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
 }
 
 button:hover {
   transform: translateY(-2px);
-  background: #2a2f39;
+  background: rgba(30, 42, 58, 0.86);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
 }
 
@@ -217,14 +301,21 @@ button:active {
 /* ========== POPUP / EVENT UI ========== */
 
 .popup {
-  background: #fff;
-  color: #111;
-  border-radius: 8px;
-  border: 2px solid #000;
+  position: absolute;
+  top: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+  background: rgba(240, 247, 255, 0.26);
+  color: #f5f9ff;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
   padding: 14px;
   margin-top: 20px;
   max-width: 420px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
 }
 
 .popup-actions {
@@ -238,6 +329,28 @@ button:active {
 
 .end {
   text-align: center;
+}
+
+.controls {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 16px;
+  z-index: 20;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(18, 26, 38, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+}
+
+.glass-button {
+  background: rgba(15, 26, 40, 0.62);
 }
 
 /* ========== HELPERS / RESPONSIVE ========== */
@@ -261,12 +374,33 @@ button:active {
     height: 260px;
   }
 
+  .game-screen h1 {
+    font-size: 1.2rem;
+  }
+
   .dashboard {
     grid-template-columns: 1fr;
   }
 
   .dashboard-right {
     max-width: 100%;
+  }
+
+  .hud-corner,
+  .hud-hidden-corner {
+    position: absolute;
+    top: 56px;
+    max-height: calc(100vh - 70px);
+  }
+
+  .hud-corner {
+    left: 10px;
+    max-width: min(360px, calc(100vw - 20px));
+  }
+
+  .hud-hidden-corner {
+    right: 10px;
+    max-width: min(280px, calc(100vw - 20px));
   }
 }
 
@@ -277,6 +411,24 @@ button:active {
 
   .island {
     height: 200px;
+  }
+
+  .hud-corner {
+    left: 10px;
+    right: auto;
+    max-width: calc(100vw - 20px);
+  }
+
+  .hud-hidden-corner {
+    display: none;
+  }
+
+  .controls {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    bottom: 10px;
+    width: min(96vw, 640px);
   }
 
   button {

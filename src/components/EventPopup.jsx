@@ -94,6 +94,7 @@ export default function EventPopup() {
         {eventData.choices.map((choice) => (
           <button
             key={choice.id}
+            className="glass-button"
             disabled={
               (state.activeEvent.id === "HOME_BUILD_CONFIRM" &&
                 choice.id === "CONTINUE" &&
