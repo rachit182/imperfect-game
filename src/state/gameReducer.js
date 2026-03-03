@@ -319,6 +319,12 @@ export function gameReducer(state, action) {
       );
     }
 
+    case "START_GAME":
+      return {
+        ...state,
+        meta: { ...state.meta, started: true }
+      };
+
     case "GO_TO_WORK": {
       const WORK_HOURS = 8;
       const nextHoursUsed = state.meta.hoursUsed + WORK_HOURS;
