@@ -89,9 +89,10 @@ export default function Controls() {
       {visibleChoices.map((choice, index) => (
         <button
           key={choice.type}
+          className="glass-button"
           onClick={() => dispatch({ type: choice.type })}
         >
-          Choice Button {index}: {choice.label}
+          Choice {index + 1}: {choice.label}
         </button>
       ))}
     </div>
