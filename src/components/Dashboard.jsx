@@ -74,43 +74,34 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="dashboard-main hud-corner">
-        <div className="dashboard-group">
-          <p>Daily Household Expenditure: ${state.economy.householdExpense}</p>
-          <p>Daily Wage: ${state.economy.dailyWage}</p>
-        </div>
+      <div className="dashboard-group hud-top-left">
+        <p>Daily Household Expenditure: ${state.economy.householdExpense}</p>
+        <p>Daily Wage: ${state.economy.dailyWage}</p>
+        <p>Money: ${state.player.money}</p>
+        {renderMetricBar("Health", state.player.health, MAX_LEVELS.health)}
+        {renderMetricBar("Job Security", state.player.jobSecurity, MAX_LEVELS.jobSecurity)}
+      </div>
 
-        <div className="dashboard-group">
-          <p>Money: ${state.player.money}</p>
-          {renderMetricBar("Health", state.player.health, MAX_LEVELS.health)}
-          {renderMetricBar("Job Security", state.player.jobSecurity, MAX_LEVELS.jobSecurity)}
-        </div>
+      <div className="dashboard-group hud-bottom-left">
+        {renderMetricBar("AQI", state.environment.aqi, MAX_LEVELS.aqi)}
+        {renderMetricBar(
+          "Sea Water Level",
+          state.environment.seaWaterLevel,
+          MAX_LEVELS.seaWaterLevel,
+          2
+        )}
+      </div>
 
-        <div className="dashboard-group">
-          {renderMetricBar("AQI", state.environment.aqi, MAX_LEVELS.aqi)}
-          {renderMetricBar(
-            "Sea Water Level",
-            state.environment.seaWaterLevel,
-            MAX_LEVELS.seaWaterLevel,
-            2
-          )}
-          {renderMetricBar(
-            "Treadmill Of Production",
-            state.society.treadmillOfProduction,
-            MAX_LEVELS.treadmillOfProduction
-          )}
-          <p>
-            Higher treadmill means stronger pressure to keep production growing.
-            You usually earn more short-term, but pollution and health risks rise.
-          </p>
-        </div>
-        {/* ISLAND PANEL (this is what you were missing) */}
-        <div className="island">
-          <IslandScene
-            waterLevel={water01}
-            fortified={state.player.home.hasConcreteBarrier}
-          />
-        </div>
+      <div className="dashboard-group hud-bottom-right">
+        {renderMetricBar(
+          "Treadmill Of Production",
+          state.society.treadmillOfProduction,
+          MAX_LEVELS.treadmillOfProduction
+        )}
+        <p>
+          Higher treadmill means stronger pressure to keep production growing.
+          You usually earn more short-term, but pollution and health risks rise.
+        </p>
       </div>
 
     </div>
