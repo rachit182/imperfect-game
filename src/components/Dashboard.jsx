@@ -15,6 +15,22 @@ const MAX_LEVELS = {
   factoryProfitability: 100
 };
 
+const METRIC_ICONS = {
+  Health: "💓",
+  "Job Security": "🛡️",
+  AQI: "🌫️",
+  "Sea Water Level": "🌊",
+  "Treadmill Of Production": "🏭"
+};
+
+const METRIC_DESCRIPTIONS = {
+  Health: "Your physical condition. If it gets too low, you die.",
+  "Job Security": "How stable your job is. Lower security means higher layoff risk.",
+  AQI: "Air quality index. Higher AQI means worse air and more health damage.",
+  "Sea Water Level": "How much the sea has risen around the island.",
+  "Treadmill Of Production": "Pressure to keep producing more for short-term gains."
+};
+
 export default function Dashboard() {
   const { state, dispatch } = useContext(GameContext);
 
@@ -23,13 +39,26 @@ export default function Dashboard() {
 
   const renderMetricBar = (label, value, max, decimals = 0) => {
     const clampedValue = Math.max(0, Math.min(value, max));
+    const metricIcon = METRIC_ICONS[label] || "•";
+    const metricDescription = METRIC_DESCRIPTIONS[label] || "No description available.";
     return (
       <div className="metric-row">
         <div className="metric-head">
-          <span>{label}</span>
           <span>{formatWithMax(value, max, decimals)}</span>
         </div>
-        <progress className="metric-bar" value={clampedValue} max={max} />
+        <div className="metric-track-row">
+          <span className="metric-icon-label" role="img" aria-label={label} title={label}>
+            {metricIcon}
+          </span>
+          <progress className="metric-bar" value={clampedValue} max={max} />
+          <span className="metric-info-wrap" tabIndex={0} aria-label={`${label} info`}>
+            <span className="metric-info-icon">i</span>
+            <span className="metric-tooltip">
+              <strong>{label}</strong>
+              <span>{metricDescription}</span>
+            </span>
+          </span>
+        </div>
       </div>
     );
   };

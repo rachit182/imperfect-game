@@ -78,23 +78,37 @@ export default function Controls() {
     }
   }
 
-  const mustInclude = choices.filter((choice) => choice.mustInclude);
-  const optional = choices
+  const homeChoice = choices.find((choice) => choice.type === "REQUEST_BUILD_HOME");
+  const nonHomeChoices = choices.filter((choice) => choice.type !== "REQUEST_BUILD_HOME");
+
+  const mustInclude = nonHomeChoices.filter((choice) => choice.mustInclude);
+  const optional = nonHomeChoices
     .filter((choice) => !choice.mustInclude)
     .sort((a, b) => b.priority - a.priority);
   const visibleChoices = [...mustInclude, ...optional].slice(0, 3);
 
   return (
-    <div className="controls">
-      {visibleChoices.map((choice, index) => (
+    <>
+      {homeChoice && (
         <button
-          key={choice.type}
-          className="glass-button"
-          onClick={() => dispatch({ type: choice.type })}
+          className="glass-button home-improve-button"
+          onClick={() => dispatch({ type: homeChoice.type })}
         >
-          Choice {index + 1}: {choice.label}
+          {homeChoice.label}
         </button>
-      ))}
-    </div>
+      )}
+
+      <div className="controls">
+        {visibleChoices.map((choice) => (
+          <button
+            key={choice.type}
+            className="glass-button"
+            onClick={() => dispatch({ type: choice.type })}
+          >
+            {choice.label}
+          </button>
+        ))}
+      </div>
+    </>
   );
 }
