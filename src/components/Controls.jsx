@@ -86,15 +86,20 @@ export default function Controls() {
     .filter((choice) => !choice.mustInclude)
     .sort((a, b) => b.priority - a.priority);
   const visibleChoices = [...mustInclude, ...optional].slice(0, 3);
+  const canAnimateHomeUpgrade = state.player.money > 2000;
 
   return (
     <>
       {homeChoice && (
         <button
-          className="glass-button home-improve-button"
+          className={`home-improve-button ${
+            canAnimateHomeUpgrade ? "home-improve-button-dancing" : ""
+          }`}
           onClick={() => dispatch({ type: homeChoice.type })}
+          aria-label={homeChoice.label}
+          title={homeChoice.label}
         >
-          {homeChoice.label}
+          ⬆
         </button>
       )}
 

@@ -586,13 +586,54 @@ button:active {
 
 .home-improve-button {
   position: absolute;
-  left: 18%;
-  top: 56%;
+  left: 13%;
+  top: 58%;
   z-index: 19;
   transform: translate(-50%, -50%);
-  border-radius: 999px;
-  padding: 10px 16px;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  font-size: 1.45rem;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: auto;
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.82);
+  background: radial-gradient(circle at 35% 30%, #ffe16a, #ff8a3d 55%, #ef4968 100%);
+  box-shadow: 0 10px 20px rgba(239, 73, 104, 0.45), 0 0 0 2px rgba(255, 255, 255, 0.14);
+}
+
+.home-improve-button:hover {
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at 35% 30%, #fff089, #ff9b4f 55%, #f15f7a 100%);
+  box-shadow: 0 12px 24px rgba(239, 73, 104, 0.52), 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.home-improve-button:active {
+  transform: translate(-50%, -50%);
+}
+
+.home-improve-button.home-improve-button-dancing {
+  animation: home-upgrade-hop 2.2s ease-in-out infinite;
+}
+
+@keyframes home-upgrade-hop {
+  0%,
+  14%,
+  100% {
+    transform: translate(-50%, -50%);
+  }
+
+  6% {
+    transform: translate(-50%, -58%);
+  }
+
+  10% {
+    transform: translate(-50%, -46%);
+  }
 }
 
 /* ========== HELPERS / RESPONSIVE ========== */
@@ -724,7 +765,7 @@ button:active {
   }
 
   .home-improve-button {
-    left: 20%;
+    left: 15%;
     top: 58%;
   }
 
