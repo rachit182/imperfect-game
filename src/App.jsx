@@ -16,7 +16,6 @@ function GameScreen() {
 
   return (
     <div className="game-screen">
-      <h1>Imperfect the game</h1>
       <Dashboard />
       <Controls />
       <EventPopup />

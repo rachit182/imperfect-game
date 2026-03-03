@@ -18,14 +18,6 @@ const MAX_LEVELS = {
 export default function Dashboard() {
   const { state, dispatch } = useContext(GameContext);
 
-  const formatTimeFromStart = (hoursFromStart) => {
-    const startHour24 = 9;
-    const hour24 = (startHour24 + hoursFromStart) % 24;
-    const period = hour24 >= 12 ? "PM" : "AM";
-    const hour12 = hour24 % 12 || 12;
-    return `${hour12}:00 ${period}`;
-  };
-
   const formatWithMax = (value, max, decimals = 0) =>
     `${Number(value).toFixed(decimals)}/${max}`;
 
@@ -51,6 +43,11 @@ export default function Dashboard() {
     0,
     Math.min(1, state.environment.seaWaterLevel / MAX_LEVELS.seaWaterLevel)
   );
+  const currentHour24 = (9 + state.meta.hoursUsed) % 24;
+  const totalHoursElapsed = (state.meta.day - 1) * 24 + 9 + state.meta.hoursUsed;
+  const hourRotation = totalHoursElapsed * 30;
+  const minuteRotation = totalHoursElapsed * 360;
+  const isLightClock = currentHour24 >= 6 && currentHour24 < 18;
 
   return (
     <div className="dashboard fullscreen-dashboard">
@@ -58,12 +55,26 @@ export default function Dashboard() {
         <IslandScene waterLevel={water01} />
       </div>
 
-      <div className="dashboard-main hud-corner">
-        <div className="dashboard-group">
-          <p>Day: {state.meta.day}</p>
-          <p>Time: {formatTimeFromStart(state.meta.hoursUsed)}</p>
+      <div className="dashboard-group day-time-overlay">
+        <p>Day {state.meta.day}</p>
+        <div className={`clock-face ${isLightClock ? "clock-am" : "clock-pm"}`} aria-label="In-game clock">
+          <span className="clock-mark mark-12" />
+          <span className="clock-mark mark-3" />
+          <span className="clock-mark mark-6" />
+          <span className="clock-mark mark-9" />
+          <span
+            className="clock-hand hour-hand"
+            style={{ transform: `translateX(-50%) rotate(${hourRotation}deg)` }}
+          />
+          <span
+            className="clock-hand minute-hand"
+            style={{ transform: `translateX(-50%) rotate(${minuteRotation}deg)` }}
+          />
+          <span className="clock-center" />
         </div>
+      </div>
 
+      <div className="dashboard-main hud-corner">
         <div className="dashboard-group">
           <p>Daily Household Expenditure: ${state.economy.householdExpense}</p>
           <p>Daily Wage: ${state.economy.dailyWage}</p>
