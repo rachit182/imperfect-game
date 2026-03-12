@@ -6,7 +6,9 @@ export const initialState = {
     hoursUsed: 0,
     workDecisionMade: false,
     stormVulnerability: false,
-    lastActionType: null
+    lastActionType: null,
+    started: false, // NEW
+
   },
   player: {
     money: 1000,
