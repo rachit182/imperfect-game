@@ -1,14 +1,17 @@
 import { useContext } from "react";
-import { GameProvider } from "./state/GameContext";
-import { GameContext } from "./state/GameContext";
+import { GameProvider, GameContext } from "./state/GameContext";
 import Dashboard from "./components/Dashboard";
 import EndScreen from "./components/EndScreen";
 import Controls from "./components/Controls";
 import EventPopup from "./components/EventPopup";
-
+import StartScreen from "./components/StartScreen";
 
 function GameScreen() {
-  const { state } = useContext(GameContext);
+  const { state, dispatch } = useContext(GameContext);
+
+  if (!state.meta.started) {
+    return <StartScreen onStart={() => dispatch({ type: "START_GAME" })} />;
+  }
 
   if (state.meta.gameOver) {
     return <EndScreen state={state} />;
