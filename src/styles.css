@@ -38,7 +38,7 @@ body {
 }
 
 /* ========== DASHBOARD / HUD ========== */
-/* Two-column dashboard: left = HUD / island, right = debug / hidden vars */
+
 .dashboard {
   display: grid;
   grid-template-columns: minmax(520px, 1fr) 360px;
@@ -46,7 +46,6 @@ body {
   align-items: start;
 }
 
-/* Left cluster inside dashboard */
 .dashboard-main {
   display: flex;
   flex-wrap: wrap;
@@ -56,14 +55,12 @@ body {
   box-sizing: border-box;
 }
 
-/* Constrain the right panel so long text/labels don't blow out the layout */
 .dashboard-right {
   max-width: 360px;
   min-width: 240px;
   overflow: hidden;
 }
 
-/* Make long debug text/labels wrap and scroll if necessary */
 .dashboard-right .debug-list,
 .dashboard-right .hidden-vars {
   white-space: normal;
@@ -72,7 +69,8 @@ body {
   padding-right: 8px;
 }
 
-/* Individual meter/card */
+/* ========== METERS ========== */
+
 .meter {
   background: var(--panel);
   padding: 12px 16px;
@@ -90,7 +88,6 @@ body {
   justify-content: space-between;
 }
 
-/* Bars */
 .bar {
   background: #2c313a;
   height: 10px;
@@ -116,7 +113,6 @@ body {
   background: var(--accent-red);
 }
 
-/* Metric header + bar helper */
 .metric-head {
   display: flex;
   justify-content: space-between;
@@ -134,11 +130,10 @@ body {
 }
 
 /* ========== ISLAND AREA ========== */
-/* Make sure island area is visible and sized */
+
 .island {
   position: relative;
   height: 320px;
-  /* larger so the canvas is visible */
   min-height: 240px;
   background: var(--card);
   border-radius: 16px;
@@ -149,7 +144,6 @@ body {
   justify-content: center;
 }
 
-/* PixelCanvas container (if you render a canvas inside a wrapper) */
 .pixelStage {
   width: calc(100% - 24px);
   height: calc(100% - 24px);
@@ -161,7 +155,6 @@ body {
   justify-content: center;
 }
 
-/* Canvas styling: ensure it scales and is visible */
 .pixelCanvas,
 .pixelStage canvas {
   display: block;
@@ -173,7 +166,6 @@ body {
   border-radius: 12px;
 }
 
-/* House overlay (if you use DOM house sprite) */
 .house {
   position: absolute;
   bottom: 20px;
@@ -240,15 +232,206 @@ button:active {
   text-align: center;
 }
 
-/* ========== HELPERS / RESPONSIVE ========== */
+/* =========================
+   END SCREEN (FLIP CARDS)
+========================= */
 
-/* Don’t allow extremely long elements to force horizontal scroll */
+.end-screen {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+  display: grid;
+  gap: 18px;
+}
+
+.end-hero {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 18px;
+  padding: 22px 22px 18px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 18px 60px rgba(0, 0, 0, 0.5);
+}
+
+.end-kicker {
+  opacity: 0.7;
+  letter-spacing: 0.5px;
+  font-size: 0.95rem;
+}
+
+.end-title {
+  margin: 6px 0 6px;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.end-subtitle {
+  margin: 0 0 14px;
+  opacity: 0.85;
+}
+
+.end-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.end-primary-btn {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.end-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(140px, 1fr));
+  gap: 12px;
+  flex: 1;
+  min-width: 360px;
+}
+
+.end-stat {
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 14px;
+  padding: 12px 12px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.end-stat-label {
+  opacity: 0.7;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.end-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.flip-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
+}
+
+/* Make cards stack on smaller screens */
+@media (max-width: 980px) {
+  .flip-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .end-stats {
+    grid-template-columns: 1fr;
+    min-width: 0;
+  }
+}
+
+/* Flip card mechanics */
+.flip-card {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  perspective: 1000px;
+}
+
+.flip-inner {
+  position: relative;
+  min-height: 320px;
+  transform-style: preserve-3d;
+  transition: transform 0.55s ease;
+}
+
+.flip-card.is-flipped .flip-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 18px;
+  padding: 18px 18px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 18px 60px rgba(0, 0, 0, 0.5);
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.card-subtitle {
+  margin: 6px 0 0;
+  opacity: 0.8;
+}
+
+.card-summary {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  font-size: 0.95rem;
+  opacity: 0.92;
+}
+
+.card-body {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.end-badge {
+  font-size: 0.85rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  opacity: 0.95;
+}
+
+.card-hint {
+  opacity: 0.65;
+  font-size: 0.9rem;
+  margin: 2px 0 0;
+}
+
+.end-tip {
+  opacity: 0.65;
+  font-size: 0.95rem;
+  padding-left: 4px;
+}
+
+/* ========== HELPERS ========== */
+
 * {
   box-sizing: border-box;
   word-wrap: break-word;
 }
 
-/* Responsive shrink */
+/* ========== RESPONSIVE ========== */
+
 @media (max-width: 1000px) {
 
   .app,
