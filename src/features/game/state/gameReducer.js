@@ -1,9 +1,9 @@
+import { initialState } from "./initialState";
+
 const HOURS_PER_DAY = 24;
 const TREADMILL_MIN = 0;
 const TREADMILL_MAX = 100;
-
-// NEW: how much the levees reduce sea water level immediately
-const HOME_LEVEE_SEA_DROP = 35; // tune this (units are your seaWaterLevel scale: 0..200)
+const HOME_LEVEE_SEA_DROP = 35;
 
 function cloneState(state) {
   return {
@@ -129,7 +129,6 @@ function applyLossConditions(state) {
 function applyDayEndEffects(state) {
   let newState = cloneState(state);
 
-  // 1) Apply production effects
   if (newState.factory.stability >= 60) {
     newState.player.money += 300;
     newState.environment.aqi += 20;
@@ -138,30 +137,24 @@ function applyDayEndEffects(state) {
     newState.factory.equipmentWear += 5;
   }
 
-  // 2) Passive penalty: worn equipment continuously worsens AQI.
   newState.environment.aqi += newState.factory.equipmentWear / 10;
 
-  // 3) Update sea water level (faster baseline + stronger climate effect)
   newState.environment.seaWaterLevel +=
     8 + newState.environment.climateStress / 8;
 
-  // 4) Update climate stress
   newState.environment.climateStress +=
     newState.environment.aqi / 100 +
     newState.factory.toxicWaste / 200;
 
-  // 5) Treadmill-of-production pressure
   const treadmillPressure = newState.society.treadmillOfProduction / 100;
   newState.factory.profitability += treadmillPressure * 2;
   newState.environment.aqi += treadmillPressure * 8;
   newState.factory.toxicWaste += treadmillPressure * 10;
   newState.player.health -= treadmillPressure * 2;
 
-  // 6) Apply health damage
   if (newState.environment.aqi >= 300) newState.player.health -= 20;
   else if (newState.environment.aqi >= 200) newState.player.health -= 10;
 
-  // Additional systemic penalties
   if (newState.factory.toxicWaste >= 400) {
     newState.player.money -= 200;
   }
@@ -170,10 +163,8 @@ function applyDayEndEffects(state) {
     newState.player.jobSecurity -= 40;
   }
 
-  // 7) Check event triggers
   newState = checkEventTriggers(newState);
 
-  // 8) Check loss conditions
   return applyLossConditions(newState);
 }
 
@@ -200,18 +191,15 @@ function applyEventChoice(state, eventId, choiceId) {
 
         newState.player.money -= 1600;
 
-        // HOME becomes sturdier
         newState.player.home.hasConcreteBarrier = true;
         newState.player.home.stormProtectionMultiplier = 0.3;
         newState.meta.stormVulnerability = false;
 
-        // NEW: Levees/barrier reduce effective sea level
         newState.environment.seaWaterLevel = Math.max(
           0,
           newState.environment.seaWaterLevel - HOME_LEVEE_SEA_DROP
         );
 
-        // (optional) upkeep cost stays
         newState.economy.householdExpense = Math.max(
           newState.economy.householdExpense,
           130
@@ -303,6 +291,14 @@ function isBlockedByEvent(state, actionType) {
 }
 
 export function gameReducer(state, action) {
+  if (action.type === "HYDRATE_STATE") {
+    return action.payload ? cloneState(action.payload) : state;
+  }
+
+  if (action.type === "RESET_GAME") {
+    return cloneState(initialState);
+  }
+
   if (state.meta.gameOver) return state;
   if (isBlockedByEvent(state, action.type)) return state;
 
@@ -318,12 +314,6 @@ export function gameReducer(state, action) {
         1
       );
     }
-
-    case "START_GAME":
-      return {
-        ...state,
-        meta: { ...state.meta, started: true }
-      };
 
     case "GO_TO_WORK": {
       const WORK_HOURS = 8;

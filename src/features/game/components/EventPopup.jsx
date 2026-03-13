@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { GameContext } from "../state/GameContext";
+import { PixelButton, PixelPanel } from "../../../ui/components/PixelUI";
 
 const EVENT_CONTENT = {
   HOME_BUILD_CONFIRM: {
@@ -31,9 +32,7 @@ const EVENT_CONTENT = {
       "AQI was too high, and your health decreased.",
       "Medical care is limited right now."
     ],
-    choices: [
-      { id: "PRIVATE_TREATMENT", label: "Pay for private treatment ($500)" }
-    ]
+    choices: [{ id: "PRIVATE_TREATMENT", label: "Pay for private treatment ($500)" }]
   },
   HEALTH_DEGRADATION_WARNING: {
     title: "Health Degradation Warning",
@@ -54,10 +53,7 @@ const EVENT_CONTENT = {
     ],
     choices: [
       { id: "REBUILD_HIGHER", label: "Build a concrete risen home ($800)" },
-      {
-        id: "MINIMAL_REPAIR",
-        label: "Do a temporary natural material fix ($200)"
-      }
+      { id: "MINIMAL_REPAIR", label: "Do a temporary natural material fix ($200)" }
     ]
   },
   EQUIPMENT_FAILURE: {
@@ -73,7 +69,7 @@ const EVENT_CONTENT = {
   }
 };
 
-export default function EventPopup() {
+export default function EventPopup({ paused = false }) {
   const { state, dispatch } = useContext(GameContext);
   if (!state.activeEvent) return null;
 
@@ -84,36 +80,39 @@ export default function EventPopup() {
   const canAffordDoctor = state.player.money >= 200;
 
   return (
-    <div className="popup">
-      <h2>{eventData.title}</h2>
-      {eventData.lines.map((line) => (
-        <p key={line}>{line}</p>
-      ))}
-
-      <div className="popup-actions">
-        {eventData.choices.map((choice) => (
-          <button
-            key={choice.id}
-            className="glass-button"
-            disabled={
-              (state.activeEvent.id === "HOME_BUILD_CONFIRM" &&
-                choice.id === "CONTINUE" &&
-                !canAffordHomeBuild) ||
-              (state.activeEvent.id === "HEALTH_DEGRADATION_WARNING" &&
-                choice.id === "VISIT_DOCTOR" &&
-                !canAffordDoctor)
-            }
-            onClick={() =>
-              dispatch({
-                type: "RESOLVE_EVENT",
-                payload: { choiceId: choice.id }
-              })
-            }
-          >
-            {choice.label}
-          </button>
+    <div className="event-popup-wrap">
+      <PixelPanel className="event-popup">
+        <h2>{eventData.title}</h2>
+        {eventData.lines.map((line) => (
+          <p key={line}>{line}</p>
         ))}
-      </div>
+
+        <div className="event-popup-actions">
+          {eventData.choices.map((choice) => (
+            <PixelButton
+              key={choice.id}
+              variant="action"
+              disabled={
+                paused ||
+                (state.activeEvent.id === "HOME_BUILD_CONFIRM" &&
+                  choice.id === "CONTINUE" &&
+                  !canAffordHomeBuild) ||
+                (state.activeEvent.id === "HEALTH_DEGRADATION_WARNING" &&
+                  choice.id === "VISIT_DOCTOR" &&
+                  !canAffordDoctor)
+              }
+              onClick={() =>
+                dispatch({
+                  type: "RESOLVE_EVENT",
+                  payload: { choiceId: choice.id }
+                })
+              }
+            >
+              {choice.label}
+            </PixelButton>
+          ))}
+        </div>
+      </PixelPanel>
     </div>
   );
 }

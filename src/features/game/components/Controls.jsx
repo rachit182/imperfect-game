@@ -1,15 +1,15 @@
 import { useContext } from "react";
 import { GameContext } from "../state/GameContext";
+import { PixelButton } from "../../../ui/components/PixelUI";
 
-export default function Controls() {
+export default function Controls({ paused = false }) {
   const { state, dispatch } = useContext(GameContext);
   const HOURS_PER_DAY = 24;
   const WORK_HOURS = 8;
   const EXTRA_SHIFT_HOURS = 8;
   const SLEEP_HOURS = 8;
   const hasActiveEvent = Boolean(state.activeEvent);
-  const canImproveHome =
-    !state.player.home.hasConcreteBarrier && !hasActiveEvent;
+  const canImproveHome = !state.player.home.hasConcreteBarrier && !hasActiveEvent;
   const canDecideWork = !state.meta.workDecisionMade;
   const canTakeExtraShift =
     state.meta.workDecisionMade &&
@@ -22,8 +22,7 @@ export default function Controls() {
 
   const choices = [];
 
-  if (!hasActiveEvent) {
-    // Improve home is permanently prioritized when available.
+  if (!hasActiveEvent && !paused) {
     if (canImproveHome) {
       choices.push({
         type: "REQUEST_BUILD_HOME",
@@ -35,18 +34,10 @@ export default function Controls() {
 
     if (canDecideWork) {
       if (state.meta.hoursUsed + WORK_HOURS <= HOURS_PER_DAY) {
-        choices.push({
-          type: "GO_TO_WORK",
-          label: "Go To Work",
-          priority: 90
-        });
+        choices.push({ type: "GO_TO_WORK", label: "Go To Work", priority: 90 });
       }
 
-      choices.push({
-        type: "SKIP_WORK",
-        label: "Skip Work",
-        priority: 80
-      });
+      choices.push({ type: "SKIP_WORK", label: "Skip Work", priority: 80 });
     } else if (canTakeSkipFollowUp) {
       if (state.meta.hoursUsed + WORK_HOURS <= HOURS_PER_DAY) {
         choices.push({
@@ -69,11 +60,7 @@ export default function Controls() {
         });
       }
       if (canSleep) {
-        choices.push({
-          type: "SLEEP",
-          label: "Sleep",
-          priority: 85
-        });
+        choices.push({ type: "SLEEP", label: "Sleep", priority: 85 });
       }
     }
   }
@@ -86,32 +73,31 @@ export default function Controls() {
     .filter((choice) => !choice.mustInclude)
     .sort((a, b) => b.priority - a.priority);
   const visibleChoices = [...mustInclude, ...optional].slice(0, 3);
-  const canAnimateHomeUpgrade = state.player.money > 2000;
 
   return (
     <>
       {homeChoice && (
         <button
-          className={`home-improve-button ${
-            canAnimateHomeUpgrade ? "home-improve-button-dancing" : ""
-          }`}
+          className="home-improve-button"
+          disabled={paused}
           onClick={() => dispatch({ type: homeChoice.type })}
           aria-label={homeChoice.label}
           title={homeChoice.label}
         >
-          ⬆
+          ^
         </button>
       )}
 
-      <div className="controls">
+      <div className="controls-strip">
         {visibleChoices.map((choice) => (
-          <button
+          <PixelButton
             key={choice.type}
-            className="glass-button"
+            variant="action"
+            disabled={paused}
             onClick={() => dispatch({ type: choice.type })}
           >
             {choice.label}
-          </button>
+          </PixelButton>
         ))}
       </div>
     </>

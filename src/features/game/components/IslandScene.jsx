@@ -57,19 +57,12 @@ function drawOutlinedRect(ctx, x, y, w, h, fill, outline) {
  * - If fortified: we reduce the effective flood overlay (levees/barrier effect)
  */
 export default function IslandScene({ waterLevel = 0, fortified = false }) {
+    const baseLevel = clamp01(waterLevel);
+    const leveeReduction = fortified ? 0.22 : 0.0;
+    const visualWaterLevel = clamp01(baseLevel - leveeReduction);
+
     const draw = useCallback(
         (ctx, w, h) => {
-            // ==========================
-            // WATER LEVEL (with levee effect)
-            // ==========================
-            const baseLevel = clamp01(waterLevel);
-
-            // Levee/barrier reduces local flooding near the home, not the ocean itself.
-            // We model that as a reduction in the overlay rise amount.
-            // Tune these numbers based on feel.
-            const leveeReduction = fortified ? 0.22 : 0.0; // ~22% less visible flooding
-            const level = clamp01(baseLevel - leveeReduction);
-
             // ==========================
             // PALETTE
             // ==========================
@@ -547,19 +540,8 @@ export default function IslandScene({ waterLevel = 0, fortified = false }) {
                 ctx.fillRect(houseX + 3, houseY + 43, 26, 1);
             }
 
-            // ==========================
-            // RISING WATER OVERLAY (local flooding)
-            // ==========================
-            const maxRisePx = 76; // tuned so max sits just above the door in your layout
-            const eased = Math.pow(level, 1.15);
-            const rise = Math.floor(eased * maxRisePx);
-
-            if (rise > 0) {
-                ctx.fillStyle = "rgba(10, 30, 70, 0.22)";
-                ctx.fillRect(0, h - rise, w, rise);
-            }
         },
-        [waterLevel, fortified]
+        [fortified]
     );
 
     return (
@@ -570,6 +552,10 @@ export default function IslandScene({ waterLevel = 0, fortified = false }) {
                 draw={draw}
                 className="pixelCanvas"
             />
+            <div className="water-overlay" style={{ "--water-level": visualWaterLevel * 100 }}>
+                <span className="water-wave water-wave--back" />
+                <span className="water-wave water-wave--front" />
+            </div>
         </div>
     );
 }
